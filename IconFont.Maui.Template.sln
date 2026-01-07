@@ -13,6 +13,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{5D20
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IconFont.Maui.Template.Sample", "samples\IconFont.Maui.Template.Sample\IconFont.Maui.Template.Sample.csproj", "{08765D1C-95F6-4590-9687-8AF8F5CC5CD3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IconFont.Maui.Template.SourceGenerator.Tests", "tests\IconFont.Maui.Template.SourceGenerator.Tests\IconFont.Maui.Template.SourceGenerator.Tests.csproj", "{F678B05D-C6F5-4979-BF57-12B2A358846D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IconFont.Maui.Template.IntegrationTests", "tests\IconFont.Maui.Template.IntegrationTests\IconFont.Maui.Template.IntegrationTests.csproj", "{5D0F73A1-21E9-47ED-8D60-28FC66D3EF26}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +65,30 @@ Global
 		{08765D1C-95F6-4590-9687-8AF8F5CC5CD3}.Release|x64.Build.0 = Release|Any CPU
 		{08765D1C-95F6-4590-9687-8AF8F5CC5CD3}.Release|x86.ActiveCfg = Release|Any CPU
 		{08765D1C-95F6-4590-9687-8AF8F5CC5CD3}.Release|x86.Build.0 = Release|Any CPU
+		{F678B05D-C6F5-4979-BF57-12B2A358846D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F678B05D-C6F5-4979-BF57-12B2A358846D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F678B05D-C6F5-4979-BF57-12B2A358846D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F678B05D-C6F5-4979-BF57-12B2A358846D}.Debug|x64.Build.0 = Debug|Any CPU
+		{F678B05D-C6F5-4979-BF57-12B2A358846D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F678B05D-C6F5-4979-BF57-12B2A358846D}.Debug|x86.Build.0 = Debug|Any CPU
+		{F678B05D-C6F5-4979-BF57-12B2A358846D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F678B05D-C6F5-4979-BF57-12B2A358846D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F678B05D-C6F5-4979-BF57-12B2A358846D}.Release|x64.ActiveCfg = Release|Any CPU
+		{F678B05D-C6F5-4979-BF57-12B2A358846D}.Release|x64.Build.0 = Release|Any CPU
+		{F678B05D-C6F5-4979-BF57-12B2A358846D}.Release|x86.ActiveCfg = Release|Any CPU
+		{F678B05D-C6F5-4979-BF57-12B2A358846D}.Release|x86.Build.0 = Release|Any CPU
+		{5D0F73A1-21E9-47ED-8D60-28FC66D3EF26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D0F73A1-21E9-47ED-8D60-28FC66D3EF26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D0F73A1-21E9-47ED-8D60-28FC66D3EF26}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5D0F73A1-21E9-47ED-8D60-28FC66D3EF26}.Debug|x64.Build.0 = Debug|Any CPU
+		{5D0F73A1-21E9-47ED-8D60-28FC66D3EF26}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5D0F73A1-21E9-47ED-8D60-28FC66D3EF26}.Debug|x86.Build.0 = Debug|Any CPU
+		{5D0F73A1-21E9-47ED-8D60-28FC66D3EF26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D0F73A1-21E9-47ED-8D60-28FC66D3EF26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D0F73A1-21E9-47ED-8D60-28FC66D3EF26}.Release|x64.ActiveCfg = Release|Any CPU
+		{5D0F73A1-21E9-47ED-8D60-28FC66D3EF26}.Release|x64.Build.0 = Release|Any CPU
+		{5D0F73A1-21E9-47ED-8D60-28FC66D3EF26}.Release|x86.ActiveCfg = Release|Any CPU
+		{5D0F73A1-21E9-47ED-8D60-28FC66D3EF26}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -67,5 +97,7 @@ Global
 		{D8245E50-D5E2-4EBF-A5C3-7E89713C5BA1} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{09121315-7BEA-432B-A84C-9C01219F4CA5} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{08765D1C-95F6-4590-9687-8AF8F5CC5CD3} = {5D20AA90-6969-D8BD-9DCD-8634F4692FDA}
+		{F678B05D-C6F5-4979-BF57-12B2A358846D} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{5D0F73A1-21E9-47ED-8D60-28FC66D3EF26} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal
