@@ -1,0 +1,7 @@
+<Project>
+  <Import Project="$(MSBuildThisFileDirectory)IconFont.props" Condition="Exists('$(MSBuildThisFileDirectory)IconFont.props')" />
+  <ItemGroup>
+    <MauiFont Include="$(MSBuildThisFileDirectory)Fonts/$(IconFontFile)"
+              Alias="$(IconFontAlias)" />
+  </ItemGroup>
+</Project>

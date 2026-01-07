@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <IconFontFile>FluentSystemIcons-Regular.ttf</IconFontFile>
+    <IconFontAlias>FluentIcons</IconFontAlias>
+    <IconFontClass>FluentIcons</IconFontClass>
+    <IconFontNamespace>IconFontTemplate</IconFontNamespace>
+  </PropertyGroup>
+</Project>

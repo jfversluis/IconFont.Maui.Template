@@ -1,0 +1,111 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<Import Project="IconFont.props" />
+
+	<PropertyGroup>
+		<TargetFrameworks>net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
+		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
+
+		<UseMaui>true</UseMaui>
+		<SingleProject>true</SingleProject>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<LangVersion>preview</LangVersion>
+		<PackageId>IconFont.Maui.Template</PackageId>
+		<Title>Icon Font Template for .NET MAUI</Title>
+		<Description>Provides Fluent UI System Icons as a drop-in icon font for .NET MAUI applications with automatic font registration.</Description>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<RepositoryUrl>https://github.com/jfversluis/IconFont.Maui.Template</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/jfversluis/IconFont.Maui.Template</PackageProjectUrl>
+		<PackageTags>maui;icons;font;fluentui</PackageTags>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+		<NoWarn>$(NoWarn);CS1591</NoWarn>
+		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+		<CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)generated</CompilerGeneratedFilesOutputPath>
+
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
+		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<MauiFont Include="Resources/Fonts/$(IconFontFile)" Alias="$(IconFontAlias)" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<AdditionalFiles Include="Resources/Fonts/$(IconFontFile)" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="Resources/Fonts/$(IconFontFile)" Pack="true" PackagePath="buildTransitive/Fonts" />
+		<None Include="buildTransitive/IconFont.Maui.Template.targets" Pack="true" PackagePath="buildTransitive" />
+		<None Include="IconFont.props" Pack="true" PackagePath="buildTransitive" />
+		<None Include="LICENSE" Pack="true" PackagePath="" />
+		<None Include="NOTICE.md" Pack="true" PackagePath="" Condition="Exists('NOTICE.md')" />
+		<None Include="README.md" Pack="true" PackagePath="" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\IconFont.Maui.Template.SourceGenerator\IconFont.Maui.Template.SourceGenerator.csproj"
+			OutputItemType="Analyzer"
+			ReferenceOutputAssembly="false" />
+	</ItemGroup>
+
+	<Target Name="GenerateIconFontConfig" BeforeTargets="BeforeCompile">
+		<PropertyGroup>
+			<IconFontConfigPath>$(IntermediateOutputPath)IconFontConfig.g.cs</IconFontConfigPath>
+			<IconFontEditorConfigPath>$(IntermediateOutputPath)IconFont.props.editorconfig</IconFontEditorConfigPath>
+		</PropertyGroup>
+		<ItemGroup>
+			<_IconFontConfigLines Include="namespace $(IconFontNamespace)%3B" />
+			<_IconFontConfigLines Include="internal static class IconFontConfig" />
+			<_IconFontConfigLines Include="{" />
+			<_IconFontConfigLines Include="    public const string FontFile = &quot;$(IconFontFile)&quot;%3B" />
+			<_IconFontConfigLines Include="    public const string FontAlias = &quot;$(IconFontAlias)&quot;%3B" />
+			<_IconFontConfigLines Include="    public const string ClassName = &quot;$(IconFontClass)&quot;%3B" />
+			<_IconFontConfigLines Include="    public const string Namespace = &quot;$(IconFontNamespace)&quot;%3B" />
+			<_IconFontConfigLines Include="}" />
+
+			<_IconFontEditorConfigLines Include="is_global = true" />
+			<_IconFontEditorConfigLines Include="#" />
+			<_IconFontEditorConfigLines Include="build_metadata.AdditionalFiles.IconFontFile = $(IconFontFile)" />
+			<_IconFontEditorConfigLines Include="build_metadata.AdditionalFiles.IconFontAlias = $(IconFontAlias)" />
+			<_IconFontEditorConfigLines Include="build_metadata.AdditionalFiles.IconFontClass = $(IconFontClass)" />
+			<_IconFontEditorConfigLines Include="build_metadata.AdditionalFiles.IconFontNamespace = $(IconFontNamespace)" />
+
+			<_IconFontExtensionsLines Include="Line">
+				<Text>namespace $(IconFontNamespace);</Text>
+			</_IconFontExtensionsLines>
+			<_IconFontExtensionsLines Include="Line">
+				<Text>public static partial class IconFontTemplateBuilderExtensions</Text>
+			</_IconFontExtensionsLines>
+			<_IconFontExtensionsLines Include="Line">
+				<Text>{</Text>
+			</_IconFontExtensionsLines>
+			<_IconFontExtensionsLines Include="Line">
+				<Text>    public static Microsoft.Maui.Hosting.MauiAppBuilder Use$(IconFontClass)(this Microsoft.Maui.Hosting.MauiAppBuilder builder) =&gt; builder.UseIconFont();</Text>
+			</_IconFontExtensionsLines>
+			<_IconFontExtensionsLines Include="Line">
+				<Text>}</Text>
+			</_IconFontExtensionsLines>
+		</ItemGroup>
+		<WriteLinesToFile File="$(IconFontConfigPath)" Lines="@(_IconFontConfigLines)" Overwrite="true" />
+		<WriteLinesToFile File="$(IconFontEditorConfigPath)" Lines="@(_IconFontEditorConfigLines)" Overwrite="true" />
+		<WriteLinesToFile File="$(IntermediateOutputPath)IconFontExtensions.g.cs" Lines="@(_IconFontExtensionsLines->'%(Text)')" Overwrite="true" />
+		<ItemGroup>
+			<Compile Include="$(IconFontConfigPath)" />
+			<Compile Include="$(IntermediateOutputPath)IconFontExtensions.g.cs" />
+			<AnalyzerConfigFiles Include="$(IconFontEditorConfigPath)" />
+		</ItemGroup>
+	</Target>
+
+</Project>
