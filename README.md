@@ -82,14 +82,6 @@ IconFont/
         └── MainPage.xaml (+ code-behind)
 ```
 
-## 📌 Roadmap
-
-- [x] Generate glyph constants directly from the Fluent TTF via source generator.
-- [ ] Automate metadata extraction from the upstream Fluent UI repository.
-- [ ] Ship separate packages for filled, regular, and `ic` variants.
-- [ ] Add CI to validate icons render correctly on each platform.
-- [ ] Publish `dotnet new maui-iconpack` template for custom packs.
-
 ## 🧪 Building & Testing
 
 ```bash
