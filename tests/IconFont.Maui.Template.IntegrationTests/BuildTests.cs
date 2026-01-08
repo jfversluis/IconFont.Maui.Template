@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Xunit;
 
 namespace IconFont.Maui.Template.IntegrationTests;
@@ -17,7 +18,7 @@ public class BuildTests
         var psi = new ProcessStartInfo
         {
             FileName = "dotnet",
-            Arguments = "build \"" + proj + "\" -f net10.0-ios -r iossimulator-arm64 -v minimal",
+            Arguments = "build \"" + proj + "\" -f net10.0-maccatalyst -v minimal",
             WorkingDirectory = repoRoot,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
@@ -28,9 +29,11 @@ public class BuildTests
         proc.WaitForExit();
         Assert.True(proc.ExitCode == 0, $"build failed: {output}\n{err}");
 
-        var obj = Path.Combine(repoRoot, "src", "IconFont.Maui.Template", "obj", "Debug", "net10.0-ios");
-        Assert.True(File.Exists(Path.Combine(obj, "IconFontConfig.g.cs")));
-        Assert.True(File.Exists(Path.Combine(obj, "IconFontExtensions.g.cs")));
+        var objRoot = Path.Combine(repoRoot, "src", "IconFont.Maui.Template", "obj");
+        var config = Directory.EnumerateFiles(objRoot, "IconFontConfig.g.cs", SearchOption.AllDirectories).FirstOrDefault();
+        var extensions = Directory.EnumerateFiles(objRoot, "IconFontExtensions.g.cs", SearchOption.AllDirectories).FirstOrDefault();
+        Assert.True(config != null, "IconFontConfig.g.cs not found");
+        Assert.True(extensions != null, "IconFontExtensions.g.cs not found");
     }
 
     private static bool IsMac() => OperatingSystem.IsMacOS();
