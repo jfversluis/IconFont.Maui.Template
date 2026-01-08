@@ -57,6 +57,26 @@ Out of the box, every glyph encoded in the Fluent TTF’s Private Use Area is ex
    ```
 5. XAML usage adapts automatically if you keep defaults; otherwise update `xmlns` and class tokens.
 
+🔒 **Licensing checklist (for authors):**
+- **Verify** your font’s license permits **redistribution** (NuGet/package) and use in apps.
+- **Update** `NOTICE.md` with font **name**, **author**, **source URL**, and **license text**.
+- **Align** `README_Consumer.md` placeholders (font license/link/attribution) with your font.
+- If the font license isn’t MIT, keep code under MIT but include the font license via `NOTICE.md` (packed) or `PackageLicenseFile`.
+
+## 🧑‍💻 Consumer README template
+
+- Use `README_Consumer.md` as a starting point for your NuGet-facing README. Replace placeholders (package ID, namespace, class, font file, license) before publishing.
+- Option A: rename `README_Consumer.md` to `README.md` prior to packing.
+- Option B: keep both files and set in your `.csproj`:
+   ```xml
+   <PackageReadmeFile>README_Consumer.md</PackageReadmeFile>
+   ```
+   Ensure it’s packed:
+   ```xml
+   <None Include="README_Consumer.md" Pack="true" PackagePath="" />
+   ```
+
+
 ## 📦 Publishing
 
 - This template is ready for **NuGet Trusted Publishing** (OIDC-based, no API keys).
