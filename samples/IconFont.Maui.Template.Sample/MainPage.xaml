@@ -6,10 +6,10 @@
 
     <Grid RowDefinitions="Auto,*" Padding="20,0">
         <VerticalStackLayout Spacing="8">
-            <Label Text="Fluent UI System Icons"
+            <Label Text="Fluent UI System Icons (Regular + Filled)"
                    Style="{StaticResource Headline}"
                    SemanticProperties.HeadingLevel="Level1" />
-            <Label Text="All glyphs from the bundled font"
+            <Label Text="All glyphs from the bundled fonts"
                    Style="{StaticResource Body}" />
         </VerticalStackLayout>
 

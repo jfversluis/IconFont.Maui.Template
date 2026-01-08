@@ -48,7 +48,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<MauiFont Include="%(IconFontDefinition.Identity)" Alias="%(IconFontDefinition.FontAlias)" />
+		<MauiFont Include="@(IconFontDefinition)" Alias="%(IconFontDefinition.FontAlias)" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -79,8 +79,8 @@
 		</PropertyGroup>
 		<ItemGroup>
 			<_IconFontConfigLines Include="namespace $(IconFontNamespace)%3B" />
-			<_IconFontConfigLines Include="internal record IconFontConfig(string FontFile, string FontAlias, string ClassName, string Namespace)%3B" />
-			<_IconFontConfigLines Include="internal static class IconFontConfigs" />
+			<_IconFontConfigLines Include="public record IconFontConfig(string FontFile, string FontAlias, string ClassName, string Namespace)%3B" />
+			<_IconFontConfigLines Include="public static class IconFontConfigs" />
 			<_IconFontConfigLines Include="{" />
 			<_IconFontConfigLines Include="    public static readonly IconFontConfig[] All = new IconFontConfig[] {" />
 			<_IconFontConfigLines Include="        new IconFontConfig(&quot;%(IconFontDefinition.FileName)%(IconFontDefinition.Extension)&quot;, &quot;%(IconFontDefinition.FontAlias)&quot;, &quot;%(IconFontDefinition.FontClass)&quot;, &quot;%(IconFontDefinition.FontNamespace)&quot;)," />

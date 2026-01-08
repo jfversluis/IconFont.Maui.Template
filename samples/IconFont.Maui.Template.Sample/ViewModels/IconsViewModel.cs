@@ -22,10 +22,12 @@ public class IconsViewModel
     public IconsViewModel()
     {
         AddIcons(typeof(FluentIcons.Regular), FluentIcons.FontFamily, "FluentIcons.Regular");
-		if (Type.GetType("IconFontTemplate.FluentIconsFilled+Filled, IconFont.Maui.Template") is Type filledType)
-		{
-			AddIcons(filledType, FluentIconsFilled.FontFamily, "FluentIconsFilled.Filled");
-		}
+
+        var filledConfig = IconFontConfigs.All.FirstOrDefault(x => x.ClassName == nameof(FluentIconsFilled));
+        if (filledConfig is not null)
+        {
+            AddIcons(typeof(FluentIconsFilled.Filled), filledConfig.FontAlias, "FluentIconsFilled.Filled");
+        }
     }
 
     private void AddIcons(Type type, string fontFamily, string identifierPrefix)
