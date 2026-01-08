@@ -6,9 +6,15 @@
     xmlns:local="clr-namespace:IconFontTemplate.Sample"
     Title="IconFontTemplate.Sample">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <TabBar>
+        <ShellContent
+            Title="Regular"
+            ContentTemplate="{DataTemplate local:RegularIconsPage}"
+            Route="RegularIcons" />
+        <ShellContent
+            Title="Filled"
+            ContentTemplate="{DataTemplate local:FilledIconsPage}"
+            Route="FilledIcons" />
+    </TabBar>
 
 </Shell>

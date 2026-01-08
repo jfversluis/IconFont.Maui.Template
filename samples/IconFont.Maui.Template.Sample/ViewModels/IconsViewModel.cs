@@ -19,14 +19,19 @@ public class IconsViewModel
 {
     public ObservableCollection<IconGlyph> Icons { get; } = new();
 
-    public IconsViewModel()
+    public IconsViewModel(string? fontClass = null)
     {
-        AddIcons(typeof(FluentIcons.Regular), FluentIcons.FontFamily, "FluentIcons.Regular");
-
-        var filledConfig = IconFontConfigs.All.FirstOrDefault(x => x.ClassName == nameof(FluentIconsFilled));
-        if (filledConfig is not null)
+        foreach (var cfg in IconFontConfigs.All)
         {
-            AddIcons(typeof(FluentIconsFilled.Filled), filledConfig.FontAlias, "FluentIconsFilled.Filled");
+            if (fontClass is not null && !string.Equals(cfg.ClassName, fontClass, StringComparison.Ordinal))
+                continue;
+
+            var classType = Type.GetType($"IconFontTemplate.{cfg.ClassName}, IconFont.Maui.Template");
+            if (classType is null) continue;
+            foreach (var nested in classType.GetNestedTypes(BindingFlags.Public))
+            {
+                AddIcons(nested, cfg.FontAlias, $"{cfg.ClassName}.{nested.Name}");
+            }
         }
     }
 
