@@ -57,6 +57,12 @@ Out of the box, every glyph encoded in the Fluent TTF’s Private Use Area is ex
    ```
 5. XAML usage adapts automatically if you keep defaults; otherwise update `xmlns` and class tokens.
 
+## 📦 Publishing
+
+- This template is ready for **NuGet Trusted Publishing** (OIDC-based, no API keys).
+- GitHub Actions release workflow uses `nuget/setup-nuget@v1` with `auth: true` and `id-token` permissions.
+- See: https://blog.verslu.is/nuget/trusted-publishing-easy-setup/
+
 ## 🏗️ Repository Layout
 
 ```

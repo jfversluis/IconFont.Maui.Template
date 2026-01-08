@@ -10,6 +10,10 @@ on:
     tags:
       - 'v*.*.*'
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   pack-and-push:
     runs-on: ubuntu-latest
@@ -29,8 +33,12 @@ jobs:
         with:
           name: nuget
           path: artifacts/*.nupkg
-      - name: Push to NuGet
+      - name: Enable NuGet Trusted Publishing
+        uses: nuget/setup-nuget@v1
+        with:
+          auth: true
+      - name: Push to NuGet (Trusted Publishing)
         env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          NUGET_AUTH_TOKEN: ${{ env.NUGET_AUTH_TOKEN }}
         run: |
-          dotnet nuget push artifacts/*.nupkg -k "$NUGET_API_KEY" -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push artifacts/*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate
