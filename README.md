@@ -66,8 +66,12 @@ Out of the box, every glyph encoded in the Fluent TTF’s Private Use Area is ex
 ## 🧑‍💻 Consumer README template
 
 - Use `README_Consumer.md` as a starting point for your NuGet-facing README. Replace placeholders (package ID, namespace, class, font file, license) before publishing.
-- Option A: rename `README_Consumer.md` to `README.md` prior to packing.
-- Option B: keep both files and set in your `.csproj`:
+- **Recommended:** rename `README_Consumer.md` to `README.md` in your fork and update your `.csproj`:
+   ```xml
+   <PackageReadmeFile>README.md</PackageReadmeFile>
+   <None Include="..\\..\\README.md" Pack="true" PackagePath="" />
+   ```
+- Alternatively, keep `README_Consumer.md` and set in your `.csproj`:
    ```xml
    <PackageReadmeFile>README_Consumer.md</PackageReadmeFile>
    ```

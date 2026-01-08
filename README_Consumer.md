@@ -12,6 +12,12 @@ Replace placeholders before publishing:
 NuGet.org allows only images from certain domains. Use raw.githubusercontent.com for badges/images.
 Example badge:
 [![NuGet](https://img.shields.io/nuget/v/{{PACKAGE_ID}}.svg?label=NuGet)](https://www.nuget.org/packages/{{PACKAGE_ID}})
+--
+Recommended for maintainers of this template:
+- Rename this file to `README.md` in your fork.
+- Update your `.csproj`:
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <None Include="..\\..\\README.md" Pack="true" PackagePath="" />
 -->
 
 ![nuget](https://img.shields.io/nuget/v/{{PACKAGE_ID}}.svg?label=NuGet)
