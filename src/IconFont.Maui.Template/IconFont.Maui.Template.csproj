@@ -18,6 +18,7 @@
 		<RepositoryUrl>https://github.com/jfversluis/IconFont.Maui.Template</RepositoryUrl>
 		<PackageProjectUrl>https://github.com/jfversluis/IconFont.Maui.Template</PackageProjectUrl>
 		<PackageTags>maui;icons;font;fluentui</PackageTags>
+		<PackageReadmeFile>README_Consumer.md</PackageReadmeFile>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -49,9 +50,9 @@
 		<None Include="Resources/Fonts/$(IconFontFile)" Pack="true" PackagePath="buildTransitive/Fonts" />
 		<None Include="buildTransitive/IconFont.Maui.Template.targets" Pack="true" PackagePath="buildTransitive" />
 		<None Include="IconFont.props" Pack="true" PackagePath="buildTransitive" />
-		<None Include="LICENSE" Pack="true" PackagePath="" />
-		<None Include="NOTICE.md" Pack="true" PackagePath="" Condition="Exists('NOTICE.md')" />
-		<None Include="README.md" Pack="true" PackagePath="" />
+		<None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+		<None Include="..\..\NOTICE.md" Pack="true" PackagePath="" Condition="Exists('..\..\NOTICE.md')" />
+		<None Include="..\..\README_Consumer.md" Pack="true" PackagePath="" Condition="Exists('..\..\README_Consumer.md')" />
 	</ItemGroup>
 
 	<ItemGroup>
