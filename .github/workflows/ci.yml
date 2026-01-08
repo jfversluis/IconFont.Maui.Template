@@ -7,23 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
-      - name: Restore
-        run: dotnet restore IconFont.Maui.Template.sln
-      - name: Build
-        run: dotnet build IconFont.Maui.Template.sln -v minimal
-      - name: Test Source Generator
-        run: dotnet test tests/IconFont.Maui.Template.SourceGenerator.Tests/IconFont.Maui.Template.SourceGenerator.Tests.csproj -v minimal
-      - name: Test Integration (no-op on non-mac)
-        run: dotnet test tests/IconFont.Maui.Template.IntegrationTests/IconFont.Maui.Template.IntegrationTests.csproj -v minimal
-
-  macos-maui-build:
+  macos:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,5 +16,11 @@ jobs:
           dotnet-version: '8.0.x'
       - name: Install MAUI workload
         run: dotnet workload install maui
+      - name: Restore
+        run: dotnet restore IconFont.Maui.Template.sln
       - name: Build library iOS
         run: dotnet build src/IconFont.Maui.Template/IconFont.Maui.Template.csproj -f net10.0-ios -r iossimulator-arm64 -v minimal
+      - name: Test Source Generator
+        run: dotnet test tests/IconFont.Maui.Template.SourceGenerator.Tests/IconFont.Maui.Template.SourceGenerator.Tests.csproj -v minimal
+      - name: Test Integration
+        run: dotnet test tests/IconFont.Maui.Template.IntegrationTests/IconFont.Maui.Template.IntegrationTests.csproj -v minimal
