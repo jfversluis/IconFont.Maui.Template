@@ -28,6 +28,7 @@ Recommended for maintainers of this template:
 
 ## ✨ Features
 - ⚙️ **One-line setup**: call `builder.Use{{FONT_CLASS}}()` (generated, e.g., `UseFluentIcons()`) in `MauiProgram`
+- ➕ **Multiple fonts**: use `builder.UseIconFonts()` to register all, or per-font helpers like `Use{{FONT_CLASS}}Filled()`
 - 🔤 **Strongly-typed glyphs** via `{{FONT_CLASS}}.Regular.*` (and other styles if present)
 - 🧰 **Helper APIs**: `{{FONT_CLASS}}.Create()` for `FontImageSource`
 - 📱 **Supported targets**: Android, iOS, Mac Catalyst, Windows

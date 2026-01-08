@@ -5,4 +5,18 @@
     <IconFontClass>FluentIcons</IconFontClass>
     <IconFontNamespace>IconFontTemplate</IconFontNamespace>
   </PropertyGroup>
+
+  <!-- Multi-font support: define one or more IconFontDefinition items. -->
+  <ItemGroup>
+    <IconFontDefinition Include="Resources/Fonts/FluentSystemIcons-Regular.ttf">
+      <FontAlias>FluentIcons</FontAlias>
+      <FontClass>FluentIcons</FontClass>
+      <FontNamespace>IconFontTemplate</FontNamespace>
+    </IconFontDefinition>
+    <IconFontDefinition Include="Resources/Fonts/FluentSystemIcons-Filled.ttf">
+      <FontAlias>FluentIconsFilled</FontAlias>
+      <FontClass>FluentIconsFilled</FontClass>
+      <FontNamespace>IconFontTemplate</FontNamespace>
+    </IconFontDefinition>
+  </ItemGroup>
 </Project>

@@ -30,10 +30,18 @@ public class BuildTests
         Assert.True(proc.ExitCode == 0, $"build failed: {output}\n{err}");
 
         var objRoot = Path.Combine(repoRoot, "src", "IconFont.Maui.Template", "obj");
-        var config = Directory.EnumerateFiles(objRoot, "IconFontConfig.g.cs", SearchOption.AllDirectories).FirstOrDefault();
-        var extensions = Directory.EnumerateFiles(objRoot, "IconFontExtensions.g.cs", SearchOption.AllDirectories).FirstOrDefault();
-        Assert.True(config != null, "IconFontConfig.g.cs not found");
-        Assert.True(extensions != null, "IconFontExtensions.g.cs not found");
+        var configs = Directory.EnumerateFiles(objRoot, "IconFontConfig.g.cs", SearchOption.AllDirectories).ToList();
+        var extensions = Directory.EnumerateFiles(objRoot, "IconFontExtensions.g.cs", SearchOption.AllDirectories).ToList();
+        Assert.True(configs.Count > 0, "IconFontConfig.g.cs not found");
+        Assert.True(extensions.Count > 0, "IconFontExtensions.g.cs not found");
+
+        var configText = configs.Select(File.ReadAllText).First(text => text.Contains("IconFontConfigs"));
+        Assert.Contains("FluentIcons", configText);
+        Assert.Contains("FluentIconsFilled", configText);
+
+        var extText = extensions.Select(File.ReadAllText).First(text => text.Contains("UseIconFonts"));
+        Assert.Contains("UseFluentIcons", extText);
+        Assert.Contains("UseFluentIconsFilled", extText);
     }
 
     private static bool IsMac() => OperatingSystem.IsMacOS();

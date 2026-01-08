@@ -31,12 +31,15 @@ public class GeneratorTests
         var driver = CSharpGeneratorDriver.Create(new ISourceGenerator[] { generator },
             additionalTexts: new[] { new TestAdditionalText(fontPath) },
             optionsProvider: TestAnalyzerConfigOptionsProvider.With(
-                global: new()
+                perFile: new()
                 {
-                    ["build_metadata.AdditionalFiles.IconFontFile"] = Path.GetFileName(fontPath),
-                    ["build_metadata.AdditionalFiles.IconFontAlias"] = "FluentIcons",
-                    ["build_metadata.AdditionalFiles.IconFontClass"] = "FluentIcons",
-                    ["build_metadata.AdditionalFiles.IconFontNamespace"] = "IconFontTemplate",
+                    [fontPath] = new()
+                    {
+                        ["build_metadata.AdditionalFiles.IconFontFile"] = Path.GetFileName(fontPath),
+                        ["build_metadata.AdditionalFiles.IconFontAlias"] = "FluentIcons",
+                        ["build_metadata.AdditionalFiles.IconFontClass"] = "FluentIcons",
+                        ["build_metadata.AdditionalFiles.IconFontNamespace"] = "IconFontTemplate",
+                    }
                 }));
 
         driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
@@ -48,6 +51,50 @@ public class GeneratorTests
         Assert.Contains("namespace IconFontTemplate;", text);
         Assert.Contains("public static partial class FluentIcons", text);
         Assert.Contains("public const string Add24", text);
+    }
+
+    [Fact]
+    public void Generates_Multiple_Fonts()
+    {
+        var root = GetRepoRoot();
+        var regular = Path.GetFullPath(Path.Combine(root, "src/IconFont.Maui.Template/Resources/Fonts/FluentSystemIcons-Regular.ttf"));
+        var filled = Path.GetFullPath(Path.Combine(root, "src/IconFont.Maui.Template/Resources/Fonts/FluentSystemIcons-Filled.ttf"));
+        Assert.True(File.Exists(regular));
+        Assert.True(File.Exists(filled));
+
+        var compilation = CSharpCompilation.Create(
+            "Tests",
+            new[] { CSharpSyntaxTree.ParseText("""namespace Dummy { class C { } }""") },
+            new[] { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) },
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        var generator = new FluentGlyphGenerator();
+        var driver = CSharpGeneratorDriver.Create(new ISourceGenerator[] { generator },
+            additionalTexts: new[] { new TestAdditionalText(regular), new TestAdditionalText(filled) },
+            optionsProvider: TestAnalyzerConfigOptionsProvider.With(
+                perFile: new()
+                {
+                    [regular] = new()
+                    {
+                        ["build_metadata.AdditionalFiles.IconFontFile"] = Path.GetFileName(regular),
+                        ["build_metadata.AdditionalFiles.IconFontAlias"] = "FluentIcons",
+                        ["build_metadata.AdditionalFiles.IconFontClass"] = "FluentIcons",
+                        ["build_metadata.AdditionalFiles.IconFontNamespace"] = "IconFontTemplate",
+                    },
+                    [filled] = new()
+                    {
+                        ["build_metadata.AdditionalFiles.IconFontFile"] = Path.GetFileName(filled),
+                        ["build_metadata.AdditionalFiles.IconFontAlias"] = "FluentIconsFilled",
+                        ["build_metadata.AdditionalFiles.IconFontClass"] = "FluentIconsFilled",
+                        ["build_metadata.AdditionalFiles.IconFontNamespace"] = "IconFontTemplate",
+                    }
+                }));
+
+        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
+        Assert.Empty(diagnostics);
+
+        Assert.NotNull(outputCompilation.SyntaxTrees.FirstOrDefault(t => t.FilePath.EndsWith("FluentIcons.Generated.g.cs")));
+        Assert.NotNull(outputCompilation.SyntaxTrees.FirstOrDefault(t => t.FilePath.EndsWith("FluentIconsFilled.Generated.g.cs")));
     }
 
     private static string GetRepoRoot()
@@ -69,12 +116,18 @@ public class GeneratorTests
     private sealed class TestAnalyzerConfigOptionsProvider : AnalyzerConfigOptionsProvider
     {
         private readonly AnalyzerConfigOptions _global;
-        private TestAnalyzerConfigOptionsProvider(AnalyzerConfigOptions global) => _global = global;
-        public static AnalyzerConfigOptionsProvider With(Dictionary<string, string> global)
-            => new TestAnalyzerConfigOptionsProvider(new TestAnalyzerConfigOptions(global));
+        private readonly Dictionary<string, AnalyzerConfigOptions> _perFile;
+        private TestAnalyzerConfigOptionsProvider(AnalyzerConfigOptions global, Dictionary<string, AnalyzerConfigOptions> perFile)
+        {
+            _global = global;
+            _perFile = perFile;
+        }
+        public static AnalyzerConfigOptionsProvider With(Dictionary<string, Dictionary<string, string>> perFile)
+            => new TestAnalyzerConfigOptionsProvider(TestAnalyzerConfigOptions.Empty, perFile.ToDictionary(kvp => kvp.Key, kvp => (AnalyzerConfigOptions)new TestAnalyzerConfigOptions(kvp.Value)));
         public override AnalyzerConfigOptions GlobalOptions => _global;
         public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => TestAnalyzerConfigOptions.Empty;
-        public override AnalyzerConfigOptions GetOptions(AdditionalText text) => TestAnalyzerConfigOptions.Empty;
+        public override AnalyzerConfigOptions GetOptions(AdditionalText text)
+            => _perFile.TryGetValue(text.Path, out var opts) ? opts : TestAnalyzerConfigOptions.Empty;
     }
 
     private sealed class TestAnalyzerConfigOptions : AnalyzerConfigOptions

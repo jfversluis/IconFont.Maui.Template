@@ -1,7 +1,17 @@
 <Project>
   <Import Project="$(MSBuildThisFileDirectory)IconFont.props" Condition="Exists('$(MSBuildThisFileDirectory)IconFont.props')" />
+
+  <!-- Fallback for single-font props -->
+  <ItemGroup Condition="'@(IconFontDefinition)' == ''">
+    <IconFontDefinition Include="$(MSBuildThisFileDirectory)Fonts/$(IconFontFile)">
+      <FontAlias>$(IconFontAlias)</FontAlias>
+      <FontClass>$(IconFontClass)</FontClass>
+      <FontNamespace>$(IconFontNamespace)</FontNamespace>
+    </IconFontDefinition>
+  </ItemGroup>
+
   <ItemGroup>
-    <MauiFont Include="$(MSBuildThisFileDirectory)Fonts/$(IconFontFile)"
-              Alias="$(IconFontAlias)" />
+    <MauiFont Include="$(MSBuildThisFileDirectory)Fonts/%(IconFontDefinition.FileName)%(IconFontDefinition.Extension)"
+              Alias="%(IconFontDefinition.FontAlias)" />
   </ItemGroup>
 </Project>

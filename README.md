@@ -57,6 +57,27 @@ Out of the box, every glyph encoded in the Fluent TTF’s Private Use Area is ex
    ```
 5. XAML usage adapts automatically if you keep defaults; otherwise update `xmlns` and class tokens.
 
+### Multi-font example
+```xml
+<ItemGroup>
+   <IconFontDefinition Include="Resources/Fonts/MyIcons-Regular.ttf">
+      <FontAlias>MyIcons</FontAlias>
+      <FontClass>MyIcons</FontClass>
+      <FontNamespace>MyCompany.Icons</FontNamespace>
+   </IconFontDefinition>
+   <IconFontDefinition Include="Resources/Fonts/MyIcons-Filled.ttf">
+      <FontAlias>MyIconsFilled</FontAlias>
+      <FontClass>MyIconsFilled</FontClass>
+      <FontNamespace>MyCompany.Icons</FontNamespace>
+   </IconFontDefinition>
+</ItemGroup>
+```
+In `MauiProgram`:
+```csharp
+builder.UseIconFonts(); // registers all fonts
+// or builder.UseMyIcons(); builder.UseMyIconsFilled();
+```
+
 🔒 **Licensing checklist (for authors):**
 - **Verify** your font’s license permits **redistribution** (NuGet/package) and use in apps.
 - **Update** `NOTICE.md` with font **name**, **author**, **source URL**, and **license text**.

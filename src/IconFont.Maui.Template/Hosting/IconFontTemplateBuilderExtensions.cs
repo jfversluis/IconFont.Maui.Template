@@ -11,8 +11,21 @@ public static partial class IconFontTemplateBuilderExtensions
     {
         builder.ConfigureFonts(fonts =>
         {
-            fonts.AddFont(IconFontConfig.FontFile, IconFontConfig.FontAlias);
+            foreach (var cfg in IconFontConfigs.All)
+            {
+                fonts.AddFont(cfg.FontFile, cfg.FontAlias);
+            }
         });
+        return builder;
+    }
+
+    public static MauiAppBuilder UseIconFont(this MauiAppBuilder builder, string fontClass)
+    {
+        var cfg = System.Array.Find(IconFontConfigs.All, x => x.ClassName == fontClass);
+        if (cfg is not null)
+        {
+            builder.ConfigureFonts(fonts => fonts.AddFont(cfg.FontFile, cfg.FontAlias));
+        }
         return builder;
     }
 }

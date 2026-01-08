@@ -12,6 +12,7 @@ public class IconGlyph
     public required string Identifier { get; init; }
     // e.g., icons:FluentIcons.Regular.Add24
     public required string XamlIdentifier { get; init; }
+    public required string FontFamily { get; init; }
 }
 
 public class IconsViewModel
@@ -20,20 +21,28 @@ public class IconsViewModel
 
     public IconsViewModel()
     {
-        var fields = typeof(FluentIcons.Regular).GetFields(BindingFlags.Public | BindingFlags.Static);
+        AddIcons(typeof(FluentIcons.Regular), FluentIcons.FontFamily, "FluentIcons.Regular");
+		if (Type.GetType("IconFontTemplate.FluentIconsFilled+Filled, IconFont.Maui.Template") is Type filledType)
+		{
+			AddIcons(filledType, FluentIconsFilled.FontFamily, "FluentIconsFilled.Filled");
+		}
+    }
+
+    private void AddIcons(Type type, string fontFamily, string identifierPrefix)
+    {
+        var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static);
         foreach (var field in fields)
         {
-            if (field.FieldType == typeof(string))
+            if (field.FieldType != typeof(string)) continue;
+            var glyph = field.GetValue(null) as string;
+            if (string.IsNullOrEmpty(glyph)) continue;
+            Icons.Add(new IconGlyph
             {
-                var glyph = field.GetValue(null) as string;
-                if (string.IsNullOrEmpty(glyph)) continue;
-                Icons.Add(new IconGlyph
-                {
-                    Glyph = glyph!,
-                    Identifier = $"FluentIcons.Regular.{field.Name}",
-                    XamlIdentifier = $"icons:FluentIcons.Regular.{field.Name}"
-                });
-            }
+                Glyph = glyph!,
+                FontFamily = fontFamily,
+                Identifier = $"{identifierPrefix}.{field.Name}",
+                XamlIdentifier = $"icons:{identifierPrefix}.{field.Name}"
+            });
         }
     }
 }

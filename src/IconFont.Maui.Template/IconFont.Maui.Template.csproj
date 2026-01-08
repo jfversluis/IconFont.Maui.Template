@@ -38,16 +38,25 @@
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<MauiFont Include="Resources/Fonts/$(IconFontFile)" Alias="$(IconFontAlias)" />
+	<!-- Fallback to single-font props when no IconFontDefinition items are provided -->
+	<ItemGroup Condition="'@(IconFontDefinition)' == ''">
+		<IconFontDefinition Include="Resources/Fonts/$(IconFontFile)">
+			<FontAlias>$(IconFontAlias)</FontAlias>
+			<FontClass>$(IconFontClass)</FontClass>
+			<FontNamespace>$(IconFontNamespace)</FontNamespace>
+		</IconFontDefinition>
 	</ItemGroup>
 
 	<ItemGroup>
-		<AdditionalFiles Include="Resources/Fonts/$(IconFontFile)" />
+		<MauiFont Include="%(IconFontDefinition.Identity)" Alias="%(IconFontDefinition.FontAlias)" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="Resources/Fonts/$(IconFontFile)" Pack="true" PackagePath="buildTransitive/Fonts" />
+		<AdditionalFiles Include="@(IconFontDefinition)" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="@(IconFontDefinition)" Pack="true" PackagePath="buildTransitive/Fonts/%(FileName)%(Extension)" />
 		<None Include="buildTransitive/IconFont.Maui.Template.targets" Pack="true" PackagePath="buildTransitive" />
 		<None Include="IconFont.props" Pack="true" PackagePath="buildTransitive" />
 		<None Include="IconFont.props" Pack="true" PackagePath="buildTransitive/IconFont.Maui.Template.props" />
@@ -66,23 +75,23 @@
 		<PropertyGroup>
 			<IconFontConfigPath>$(IntermediateOutputPath)IconFontConfig.g.cs</IconFontConfigPath>
 			<IconFontEditorConfigPath>$(IntermediateOutputPath)IconFont.props.editorconfig</IconFontEditorConfigPath>
+			<_NL>$(MSBuildNewLine)</_NL>
 		</PropertyGroup>
 		<ItemGroup>
 			<_IconFontConfigLines Include="namespace $(IconFontNamespace)%3B" />
-			<_IconFontConfigLines Include="internal static class IconFontConfig" />
+			<_IconFontConfigLines Include="internal record IconFontConfig(string FontFile, string FontAlias, string ClassName, string Namespace)%3B" />
+			<_IconFontConfigLines Include="internal static class IconFontConfigs" />
 			<_IconFontConfigLines Include="{" />
-			<_IconFontConfigLines Include="    public const string FontFile = &quot;$(IconFontFile)&quot;%3B" />
-			<_IconFontConfigLines Include="    public const string FontAlias = &quot;$(IconFontAlias)&quot;%3B" />
-			<_IconFontConfigLines Include="    public const string ClassName = &quot;$(IconFontClass)&quot;%3B" />
-			<_IconFontConfigLines Include="    public const string Namespace = &quot;$(IconFontNamespace)&quot;%3B" />
+			<_IconFontConfigLines Include="    public static readonly IconFontConfig[] All = new IconFontConfig[] {" />
+			<_IconFontConfigLines Include="        new IconFontConfig(&quot;%(IconFontDefinition.FileName)%(IconFontDefinition.Extension)&quot;, &quot;%(IconFontDefinition.FontAlias)&quot;, &quot;%(IconFontDefinition.FontClass)&quot;, &quot;%(IconFontDefinition.FontNamespace)&quot;)," />
+			<_IconFontConfigLines Include="    }%3B" />
+			<_IconFontConfigLines Include="    public static IconFontConfig Default =&gt; All[0]%3B" />
+			<_IconFontConfigLines Include="    public static IconFontConfig? TryGet(string className) =&gt; System.Array.Find(All, x =&gt; x.ClassName == className)%3B" />
 			<_IconFontConfigLines Include="}" />
 
 			<_IconFontEditorConfigLines Include="is_global = true" />
 			<_IconFontEditorConfigLines Include="#" />
-			<_IconFontEditorConfigLines Include="build_metadata.AdditionalFiles.IconFontFile = $(IconFontFile)" />
-			<_IconFontEditorConfigLines Include="build_metadata.AdditionalFiles.IconFontAlias = $(IconFontAlias)" />
-			<_IconFontEditorConfigLines Include="build_metadata.AdditionalFiles.IconFontClass = $(IconFontClass)" />
-			<_IconFontEditorConfigLines Include="build_metadata.AdditionalFiles.IconFontNamespace = $(IconFontNamespace)" />
+			<_IconFontEditorConfigLines Include="[**/%(IconFontDefinition.FileName)%(IconFontDefinition.Extension)]&#x0A;build_metadata.AdditionalFiles.IconFontFile = %(IconFontDefinition.FileName)%(IconFontDefinition.Extension)&#x0A;build_metadata.AdditionalFiles.IconFontAlias = %(IconFontDefinition.FontAlias)&#x0A;build_metadata.AdditionalFiles.IconFontClass = %(IconFontDefinition.FontClass)&#x0A;build_metadata.AdditionalFiles.IconFontNamespace = %(IconFontDefinition.FontNamespace)" />
 
 			<_IconFontExtensionsLines Include="Line">
 				<Text>namespace $(IconFontNamespace);</Text>
@@ -94,7 +103,13 @@
 				<Text>{</Text>
 			</_IconFontExtensionsLines>
 			<_IconFontExtensionsLines Include="Line">
-				<Text>    public static Microsoft.Maui.Hosting.MauiAppBuilder Use$(IconFontClass)(this Microsoft.Maui.Hosting.MauiAppBuilder builder) =&gt; builder.UseIconFont();</Text>
+				<Text>    public static Microsoft.Maui.Hosting.MauiAppBuilder UseIconFonts(this Microsoft.Maui.Hosting.MauiAppBuilder builder) =&gt; builder.UseIconFont();</Text>
+			</_IconFontExtensionsLines>
+			<_IconFontExtensionsLines Include="Line">
+				<Text>    // Per-font helpers</Text>
+			</_IconFontExtensionsLines>
+			<_IconFontExtensionsLines Include="Line">
+				<Text>    public static Microsoft.Maui.Hosting.MauiAppBuilder Use%(IconFontDefinition.FontClass)(this Microsoft.Maui.Hosting.MauiAppBuilder builder) =&gt; builder.UseIconFont(&quot;%(IconFontDefinition.FontClass)&quot;);</Text>
 			</_IconFontExtensionsLines>
 			<_IconFontExtensionsLines Include="Line">
 				<Text>}</Text>

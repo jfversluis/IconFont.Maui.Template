@@ -33,9 +33,9 @@
                     <Grid Padding="8" RowDefinitions="Auto,Auto" ColumnDefinitions="*"
                           HorizontalOptions="Center"
                           VerticalOptions="Center">
-                        <Label Grid.Row="0"
+                           <Label Grid.Row="0"
                                Text="{Binding Glyph}"
-                               FontFamily="{x:Static icons:FluentIcons.FontFamily}"
+                               FontFamily="{Binding FontFamily}"
                                FontSize="32"
                                HorizontalOptions="Center"
                                VerticalOptions="Center" />

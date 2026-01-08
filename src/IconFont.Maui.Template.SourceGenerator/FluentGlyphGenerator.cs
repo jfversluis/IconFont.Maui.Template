@@ -38,89 +38,100 @@ public sealed class FluentGlyphGenerator : ISourceGenerator
 
     public void Execute(GeneratorExecutionContext context)
     {
-        var global = context.AnalyzerConfigOptions.GlobalOptions;
-        global.TryGetValue("build_metadata.AdditionalFiles.IconFontFile", out var fontFileName);
-        global.TryGetValue("build_metadata.AdditionalFiles.IconFontClass", out var iconClassName);
-        global.TryGetValue("build_metadata.AdditionalFiles.IconFontNamespace", out var iconNamespace);
+        var ttfFiles = context.AdditionalFiles
+            .Where(file => string.Equals(Path.GetExtension(file.Path), ".ttf", StringComparison.OrdinalIgnoreCase))
+            .ToList();
 
-        fontFileName = string.IsNullOrWhiteSpace(fontFileName) ? DefaultFontFileName : fontFileName;
-        iconClassName = string.IsNullOrWhiteSpace(iconClassName) ? "FluentIcons" : iconClassName!;
-        iconNamespace = string.IsNullOrWhiteSpace(iconNamespace) ? "IconFontTemplate" : iconNamespace!;
-
-        var fontFile = context.AdditionalFiles
-            .FirstOrDefault(file => string.Equals(Path.GetFileName(file.Path), fontFileName, StringComparison.OrdinalIgnoreCase));
-
-        if (fontFile is null || !FileExists(fontFile.Path))
+        if (ttfFiles.Count == 0)
         {
-            context.ReportDiagnostic(Diagnostic.Create(MissingFontDescriptor, Location.None, fontFileName));
+            context.ReportDiagnostic(Diagnostic.Create(MissingFontDescriptor, Location.None, DefaultFontFileName));
             return;
         }
 
-        try
+        foreach (var fontFile in ttfFiles)
         {
-            using var stream = OpenRead(fontFile.Path);
+            var opts = context.AnalyzerConfigOptions.GetOptions(fontFile);
+            opts.TryGetValue("build_metadata.AdditionalFiles.IconFontFile", out var fontFileName);
+            opts.TryGetValue("build_metadata.AdditionalFiles.IconFontClass", out var iconClassName);
+            opts.TryGetValue("build_metadata.AdditionalFiles.IconFontNamespace", out var iconNamespace);
 
-            var tables = OpenTypeReader.ReadTableDirectory(stream);
-            if (!tables.TryGetValue("post", out var postRecord) || !tables.TryGetValue("cmap", out var cmapRecord))
+            fontFileName = string.IsNullOrWhiteSpace(fontFileName) ? Path.GetFileName(fontFile.Path) : fontFileName;
+            var fileStem = Path.GetFileNameWithoutExtension(fontFileName);
+            iconClassName = string.IsNullOrWhiteSpace(iconClassName) ? DeriveClassName(fileStem) : iconClassName!;
+            iconNamespace = string.IsNullOrWhiteSpace(iconNamespace) ? "IconFontTemplate" : iconNamespace!;
+
+            if (!FileExists(fontFile.Path))
             {
-                context.ReportDiagnostic(Diagnostic.Create(ParseFontDescriptor, Location.None, fontFileName, "Required 'post' or 'cmap' table not found"));
-                return;
+                context.ReportDiagnostic(Diagnostic.Create(MissingFontDescriptor, Location.None, fontFileName));
+                continue;
             }
 
-            var glyphNames = OpenTypeReader.ReadGlyphNames(stream, postRecord);
-            var codepointToGlyph = OpenTypeReader.ReadCmapMappings(stream, cmapRecord);
-
-            if (glyphNames.Count == 0 || codepointToGlyph.Count == 0)
+            try
             {
-                context.ReportDiagnostic(Diagnostic.Create(ParseFontDescriptor, Location.None, fontFileName, "Glyph names or cmap mappings could not be extracted"));
-                return;
-            }
+                using var stream = OpenRead(fontFile.Path);
 
-            var glyphsByStyle = new SortedDictionary<string, List<GlyphEntry>>(StringComparer.Ordinal);
-            var seen = new HashSet<string>(StringComparer.Ordinal);
-
-            foreach (var kvp in codepointToGlyph)
-            {
-                var codepoint = kvp.Key;
-                var glyphIndex = kvp.Value;
-
-                if (!glyphNames.TryGetValue(glyphIndex, out var rawName) || string.IsNullOrWhiteSpace(rawName))
+                var tables = OpenTypeReader.ReadTableDirectory(stream);
+                if (!tables.TryGetValue("post", out var postRecord) || !tables.TryGetValue("cmap", out var cmapRecord))
                 {
+                    context.ReportDiagnostic(Diagnostic.Create(ParseFontDescriptor, Location.None, fontFileName, "Required 'post' or 'cmap' table not found"));
                     continue;
                 }
 
-                if (!TryParseGlyphName(rawName, out var styleName, out var constantName))
+                var glyphNames = OpenTypeReader.ReadGlyphNames(stream, postRecord);
+                var codepointToGlyph = OpenTypeReader.ReadCmapMappings(stream, cmapRecord);
+
+                if (glyphNames.Count == 0 || codepointToGlyph.Count == 0)
                 {
+                    context.ReportDiagnostic(Diagnostic.Create(ParseFontDescriptor, Location.None, fontFileName, "Glyph names or cmap mappings could not be extracted"));
                     continue;
                 }
 
-                var uniquenessKey = styleName + ":" + constantName;
-                if (!seen.Add(uniquenessKey))
+                var glyphsByStyle = new SortedDictionary<string, List<GlyphEntry>>(StringComparer.Ordinal);
+                var seen = new HashSet<string>(StringComparer.Ordinal);
+
+                foreach (var kvp in codepointToGlyph)
                 {
+                    var codepoint = kvp.Key;
+                    var glyphIndex = kvp.Value;
+
+                    if (!glyphNames.TryGetValue(glyphIndex, out var rawName) || string.IsNullOrWhiteSpace(rawName))
+                    {
+                        continue;
+                    }
+
+                    if (!TryParseGlyphName(rawName, out var styleName, out var constantName))
+                    {
+                        continue;
+                    }
+
+                    var uniquenessKey = styleName + ":" + constantName;
+                    if (!seen.Add(uniquenessKey))
+                    {
+                        continue;
+                    }
+
+                    if (!glyphsByStyle.TryGetValue(styleName, out var list))
+                    {
+                        list = new List<GlyphEntry>();
+                        glyphsByStyle.Add(styleName, list);
+                    }
+
+                    list.Add(new GlyphEntry(constantName, rawName, codepoint));
+                }
+
+                if (glyphsByStyle.Count == 0)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(ParseFontDescriptor, Location.None, fontFileName, "No glyphs matched the expected naming pattern"));
                     continue;
                 }
 
-                if (!glyphsByStyle.TryGetValue(styleName, out var list))
-                {
-                    list = new List<GlyphEntry>();
-                    glyphsByStyle.Add(styleName, list);
-                }
-
-                list.Add(new GlyphEntry(constantName, rawName, codepoint));
+                var source = GenerateSource(glyphsByStyle, iconNamespace, iconClassName);
+                context.AddSource($"{iconClassName}.Generated.g.cs", SourceText.From(source, Encoding.UTF8));
             }
-
-            if (glyphsByStyle.Count == 0)
+            catch (Exception ex)
             {
-                context.ReportDiagnostic(Diagnostic.Create(ParseFontDescriptor, Location.None, fontFileName, "No glyphs matched the expected naming pattern"));
-                return;
+                context.ReportDiagnostic(Diagnostic.Create(ParseFontDescriptor, Location.None, fontFileName!, ex.Message));
             }
-
-            var source = GenerateSource(glyphsByStyle, iconNamespace, iconClassName);
-            context.AddSource($"{iconClassName}.Generated.g.cs", SourceText.From(source, Encoding.UTF8));
-        }
-        catch (Exception ex)
-        {
-            context.ReportDiagnostic(Diagnostic.Create(ParseFontDescriptor, Location.None, fontFileName, ex.Message));
         }
     }
 
@@ -524,6 +535,19 @@ private static class OpenTypeReader
         return index >= 0 && index < customNames.Count ? customNames[index] : null;
     }
 }
+
+    private static string DeriveClassName(string fileStem)
+    {
+        // e.g., FluentSystemIcons-Filled -> FluentIconsFilled
+        var stem = fileStem;
+        const string prefix = "FluentSystemIcons";
+        if (stem.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+        {
+            stem = "FluentIcons" + stem.Substring(prefix.Length);
+        }
+        stem = stem.Replace("-", string.Empty).Replace("_", string.Empty);
+        return stem;
+    }
 
 private readonly struct TableRecord
 {

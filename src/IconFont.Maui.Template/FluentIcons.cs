@@ -13,7 +13,7 @@ public static partial class FluentIcons
     /// <summary>
     /// The font alias registered via MauiFont and buildTransitive targets.
     /// </summary>
-    public const string FontFamily = IconFontConfig.FontAlias;
+    public static readonly string FontFamily = IconFontConfigs.Default.FontAlias;
 
     /// <summary>
     /// Regular style glyphs generated at build time.
