@@ -1,5 +1,6 @@
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
+using Microsoft.Maui.Controls.Internals;
 
 
 namespace IconFontTemplate;
@@ -8,8 +9,10 @@ namespace IconFontTemplate;
 /// Provides helper APIs and glyph constants for the supplied icon font.
 /// Glyph constants are emitted at build time by the source generator based on the font file embedded in this package.
 /// </summary>
+[Preserve(AllMembers = true)]
 public static partial class FluentIcons
 {
+    static FluentIcons() { }
     /// <summary>
     /// The font alias registered via MauiFont and buildTransitive targets.
     /// </summary>

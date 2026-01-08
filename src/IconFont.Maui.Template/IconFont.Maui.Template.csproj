@@ -25,7 +25,7 @@
 		<EnableDefaultCompileItems>true</EnableDefaultCompileItems>
 		<NoWarn>$(NoWarn);CS1591</NoWarn>
 		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-		<CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)generated</CompilerGeneratedFilesOutputPath>
+		<CompilerGeneratedFilesOutputPath>$(IntermediateOutputPath)generated</CompilerGeneratedFilesOutputPath>
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
@@ -35,6 +35,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<Compile Remove="generated/**/*.cs" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 	</ItemGroup>
 
@@ -51,8 +52,21 @@
 		<MauiFont Include="@(IconFontDefinition)" Alias="%(IconFontDefinition.FontAlias)" />
 	</ItemGroup>
 
+	<!-- Ensure full path metadata is available for editorconfig matching -->
 	<ItemGroup>
-		<AdditionalFiles Include="@(IconFontDefinition)" />
+		<IconFontDefinition Update="@(IconFontDefinition)">
+			<EscapedFullPath>$([System.String]::Copy('%(FullPath)').Replace('\\','/'))</EscapedFullPath>
+		</IconFontDefinition>
+	</ItemGroup>
+
+	<ItemGroup>
+		<_IconFontAdditional Include="@(IconFontDefinition)">
+			<Link>%(FileName)%(Extension)</Link>
+		</_IconFontAdditional>
+	</ItemGroup>
+
+	<ItemGroup>
+		<AdditionalFiles Include="@(_IconFontAdditional)" Link="%(_IconFontAdditional.Link)" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -91,7 +105,7 @@
 
 			<_IconFontEditorConfigLines Include="is_global = true" />
 			<_IconFontEditorConfigLines Include="#" />
-			<_IconFontEditorConfigLines Include="[**/%(IconFontDefinition.FileName)%(IconFontDefinition.Extension)]&#x0A;build_metadata.AdditionalFiles.IconFontFile = %(IconFontDefinition.FileName)%(IconFontDefinition.Extension)&#x0A;build_metadata.AdditionalFiles.IconFontAlias = %(IconFontDefinition.FontAlias)&#x0A;build_metadata.AdditionalFiles.IconFontClass = %(IconFontDefinition.FontClass)&#x0A;build_metadata.AdditionalFiles.IconFontNamespace = %(IconFontDefinition.FontNamespace)" />
+			<_IconFontEditorConfigLines Include="[/**/%(IconFontDefinition.FileName)%(IconFontDefinition.Extension)]&#x0A;build_metadata.AdditionalFiles.IconFontFile = %(IconFontDefinition.FileName)%(IconFontDefinition.Extension)&#x0A;build_metadata.AdditionalFiles.IconFontAlias = %(IconFontDefinition.FontAlias)&#x0A;build_metadata.AdditionalFiles.IconFontClass = %(IconFontDefinition.FontClass)&#x0A;build_metadata.AdditionalFiles.IconFontNamespace = %(IconFontDefinition.FontNamespace)" />
 
 			<_IconFontExtensionsLines Include="Line">
 				<Text>namespace $(IconFontNamespace);</Text>
@@ -122,6 +136,7 @@
 			<Compile Include="$(IconFontConfigPath)" />
 			<Compile Include="$(IntermediateOutputPath)IconFontExtensions.g.cs" />
 			<AnalyzerConfigFiles Include="$(IconFontEditorConfigPath)" />
+			<AdditionalFiles Include="$(IconFontConfigPath)" />
 		</ItemGroup>
 	</Target>
 

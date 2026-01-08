@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Collections.Immutable;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -32,6 +33,14 @@ public sealed class FluentGlyphGenerator : ISourceGenerator
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
 
+    private static readonly DiagnosticDescriptor InfoDescriptor = new(
+        id: "IFMT900",
+        title: "IconFont generator info",
+        messageFormat: "{0}",
+        category: "IconFont.Maui.Template",
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true);
+
     public void Initialize(GeneratorInitializationContext context)
     {
     }
@@ -41,6 +50,10 @@ public sealed class FluentGlyphGenerator : ISourceGenerator
         var ttfFiles = context.AdditionalFiles
             .Where(file => string.Equals(Path.GetExtension(file.Path), ".ttf", StringComparison.OrdinalIgnoreCase))
             .ToList();
+
+        var configMap = ParseConfig(context.AdditionalFiles);
+
+        context.ReportDiagnostic(Diagnostic.Create(InfoDescriptor, Location.None, $"AdditionalFiles={context.AdditionalFiles.Length}, TtfFiles={ttfFiles.Count}"));
 
         if (ttfFiles.Count == 0)
         {
@@ -57,8 +70,17 @@ public sealed class FluentGlyphGenerator : ISourceGenerator
 
             fontFileName = string.IsNullOrWhiteSpace(fontFileName) ? Path.GetFileName(fontFile.Path) : fontFileName;
             var fileStem = Path.GetFileNameWithoutExtension(fontFileName);
-            iconClassName = string.IsNullOrWhiteSpace(iconClassName) ? DeriveClassName(fileStem) : iconClassName!;
-            iconNamespace = string.IsNullOrWhiteSpace(iconNamespace) ? "IconFontTemplate" : iconNamespace!;
+            iconClassName = string.IsNullOrWhiteSpace(iconClassName) ? null : iconClassName!;
+            iconNamespace = string.IsNullOrWhiteSpace(iconNamespace) ? null : iconNamespace!;
+
+            context.ReportDiagnostic(Diagnostic.Create(InfoDescriptor, Location.None, $"File={fontFile.Path}; Class={iconClassName ?? ""}; Namespace={iconNamespace ?? ""}"));
+            if (configMap.TryGetValue(Path.GetFileName(fontFile.Path), out var cfg))
+            {
+                if (string.IsNullOrWhiteSpace(iconClassName)) iconClassName = cfg.ClassName;
+                if (string.IsNullOrWhiteSpace(iconNamespace)) iconNamespace = cfg.Namespace;
+            }
+            if (string.IsNullOrWhiteSpace(iconClassName)) iconClassName = DeriveClassName(fileStem);
+            if (string.IsNullOrWhiteSpace(iconNamespace)) iconNamespace = "IconFontTemplate";
 
             if (!FileExists(fontFile.Path))
             {
@@ -125,8 +147,11 @@ public sealed class FluentGlyphGenerator : ISourceGenerator
                     continue;
                 }
 
-                var source = GenerateSource(glyphsByStyle, iconNamespace, iconClassName);
-                context.AddSource($"{iconClassName}.Generated.g.cs", SourceText.From(source, Encoding.UTF8));
+                context.ReportDiagnostic(Diagnostic.Create(InfoDescriptor, Location.None, $"Parsed styles={glyphsByStyle.Count} for {iconClassName}"));
+                var source = GenerateSource(glyphsByStyle, iconNamespace!, iconClassName!);
+                var hintName = $"{iconClassName!}.Generated.g.cs";
+                context.AddSource(hintName, SourceText.From(source, Encoding.UTF8));
+                context.ReportDiagnostic(Diagnostic.Create(InfoDescriptor, Location.None, $"Emitted {hintName}"));
             }
             catch (Exception ex)
             {
@@ -538,7 +563,6 @@ private static class OpenTypeReader
 
     private static string DeriveClassName(string fileStem)
     {
-        // e.g., FluentSystemIcons-Filled -> FluentIconsFilled
         var stem = fileStem;
         const string prefix = "FluentSystemIcons";
         if (stem.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
@@ -547,6 +571,46 @@ private static class OpenTypeReader
         }
         stem = stem.Replace("-", string.Empty).Replace("_", string.Empty);
         return stem;
+    }
+
+    private sealed class ConfigEntry
+    {
+        public string FontFile { get; set; }
+        public string FontAlias { get; set; }
+        public string ClassName { get; set; }
+        public string Namespace { get; set; }
+        public ConfigEntry(string fontFile, string fontAlias, string className, string ns)
+        {
+            FontFile = fontFile; FontAlias = fontAlias; ClassName = className; Namespace = ns;
+        }
+    }
+
+    private static Dictionary<string, ConfigEntry> ParseConfig(ImmutableArray<AdditionalText> additionalFiles)
+    {
+        var map = new Dictionary<string, ConfigEntry>(StringComparer.OrdinalIgnoreCase);
+        var configFile = additionalFiles.FirstOrDefault(f => Path.GetFileName(f.Path).Equals("IconFontConfig.g.cs", StringComparison.OrdinalIgnoreCase));
+        if (configFile is null) return map;
+        var text = configFile.GetText();
+        if (text is null) return map;
+        foreach (var line in text.ToString().Split('\n'))
+        {
+            var trimmed = line.Trim();
+            const string prefix = "new IconFontConfig(";
+            if (!trimmed.StartsWith(prefix, StringComparison.Ordinal)) continue;
+            try
+            {
+                var inner = trimmed.Substring(prefix.Length);
+                inner = inner.TrimEnd(')', ';');
+                var parts = inner.Split(',');
+                if (parts.Length < 4) continue;
+                string Clean(int i)
+                    => parts[i].Trim().TrimEnd(')').TrimEnd(',').Trim().Trim('"');
+                var entry = new ConfigEntry(Clean(0), Clean(1), Clean(2), Clean(3));
+                map[entry.FontFile] = entry;
+            }
+            catch { }
+        }
+        return map;
     }
 
 private readonly struct TableRecord
