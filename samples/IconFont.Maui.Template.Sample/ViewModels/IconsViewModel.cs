@@ -26,7 +26,13 @@ public class IconsViewModel
             if (fontClass is not null && !string.Equals(cfg.ClassName, fontClass, StringComparison.Ordinal))
                 continue;
 
-            var classType = Type.GetType($"IconFontTemplate.{cfg.ClassName}, IconFont.Maui.Template");
+            var classType = Type.GetType($"IconFontTemplate.{cfg.ClassName}, IconFont.Maui.Template")
+                            ?? (cfg.ClassName switch
+                            {
+                                nameof(FluentIcons) => typeof(FluentIcons),
+                                "FluentIconsFilled" => typeof(FluentIconsFilled),
+                                _ => null
+                            });
             if (classType is null) continue;
             foreach (var nested in classType.GetNestedTypes(BindingFlags.Public))
             {
