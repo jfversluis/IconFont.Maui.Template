@@ -12,33 +12,41 @@ on:
 
 permissions:
   contents: read
+  packages: write
   id-token: write
 
 jobs:
   pack-and-push:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - name: Install MAUI workload
+        run: dotnet workload install maui
       - name: Restore
-        run: dotnet restore IconFont.Maui.Template.sln
+        run: dotnet restore src/IconFont.Maui.Template/IconFont.Maui.Template.csproj
       - name: Pack
         run: |
           VERSION=${{ inputs.version != '' && inputs.version || github.ref_name }}
+          VERSION=${VERSION#v}
           dotnet pack src/IconFont.Maui.Template/IconFont.Maui.Template.csproj -c Release -p:Version=$VERSION -o artifacts
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: nuget
           path: artifacts/*.nupkg
-      - name: Enable NuGet Trusted Publishing
-        uses: nuget/setup-nuget@v1
+      - name: NuGet login (OIDC)
+        uses: nuget/login@v1
+        id: nuget-login
         with:
-          auth: true
-      - name: Push to NuGet (Trusted Publishing)
-        env:
-          NUGET_AUTH_TOKEN: ${{ env.NUGET_AUTH_TOKEN }}
+          user: '{{NUGET_USER}}'
+      - name: Push to NuGet
         run: |
-          dotnet nuget push artifacts/*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push artifacts/*.nupkg \
+            --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate

@@ -104,8 +104,10 @@ builder.UseIconFonts(); // registers all fonts
 
 ## 📦 Publishing
 
-- This template is ready for **NuGet Trusted Publishing** (OIDC-based, no API keys).
-- GitHub Actions release workflow uses `nuget/setup-nuget@v1` with `auth: true` and `id-token` permissions.
+- This template uses **NuGet Trusted Publishing** (OIDC-based, no API keys stored as secrets).
+- The release workflow (`.github/workflows/release.yml`) uses `nuget/login@v1` to obtain a temporary API key via OIDC.
+- **Setup required:** replace `{{NUGET_USER}}` in `release.yml` with your nuget.org username.
+- Configure the Trusted Publisher on nuget.org: go to [Manage Trusted Publishers](https://www.nuget.org/account/ManageTrustedPublishers) and add your repo + workflow.
 - See: https://blog.verslu.is/nuget/trusted-publishing-easy-setup/
 
 ## 🏗️ Repository Layout
