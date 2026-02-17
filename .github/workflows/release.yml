@@ -1,13 +1,18 @@
 name: Release
 
 on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (e.g., 1.2.3)'
+        required: true
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
-      - 'v[0-9]+.[0-9]+.[0-9]+-preview[0-9]+'
+      - 'v*.*.*'
 
 permissions:
   contents: read
+  packages: write
   id-token: write
 
 jobs:
@@ -22,24 +27,26 @@ jobs:
             10.0.x
       - name: Install MAUI workload
         run: dotnet workload install maui
-      - name: Get version from tag
-        id: get_version
-        uses: battila7/get-version-action@v2
       - name: Restore
-        run: dotnet restore IconFont.Maui.Template.sln
-      - name: Build
-        run: dotnet build src/IconFont.Maui.Template/IconFont.Maui.Template.csproj -c Release /p:Version=${{ steps.get_version.outputs.version-without-v }}
+        run: dotnet restore src/IconFont.Maui.Template/IconFont.Maui.Template.csproj
       - name: Pack
-        run: dotnet pack src/IconFont.Maui.Template/IconFont.Maui.Template.csproj -c Release /p:Version=${{ steps.get_version.outputs.version-without-v }} --no-build --output .
+        run: |
+          VERSION=${{ inputs.version != '' && inputs.version || github.ref_name }}
+          VERSION=${VERSION#v}
+          dotnet pack src/IconFont.Maui.Template/IconFont.Maui.Template.csproj -c Release -p:Version=$VERSION -o artifacts
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: nuget
-          path: '*.nupkg'
+          path: artifacts/*.nupkg
       - name: NuGet login (OIDC)
-        uses: NuGet/login@v1
-        id: nuget_login
+        uses: nuget/login@v1
+        id: nuget-login
         with:
           user: jfversluis
       - name: Push to NuGet
-        run: dotnet nuget push IconFont.Maui.Template.${{ steps.get_version.outputs.version-without-v }}.nupkg -s https://api.nuget.org/v3/index.json -k ${{ steps.nuget_login.outputs.NUGET_API_KEY }}
+        run: |
+          dotnet nuget push artifacts/*.nupkg \
+            --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
