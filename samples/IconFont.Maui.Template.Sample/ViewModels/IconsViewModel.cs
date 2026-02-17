@@ -8,9 +8,9 @@ namespace IconFontTemplate.Sample.ViewModels;
 public class IconGlyph
 {
     public required string Glyph { get; init; }
-    // e.g., FluentIcons.Regular.Add24
+    // e.g., FluentIconsRegular.Add24
     public required string Identifier { get; init; }
-    // e.g., icons:FluentIcons.Regular.Add24
+    // e.g., icons:FluentIconsRegular.Add24
     public required string XamlIdentifier { get; init; }
     public required string FontFamily { get; init; }
 }
@@ -21,22 +21,24 @@ public class IconsViewModel
 
     public IconsViewModel(string? fontClass = null)
     {
+        var asm = typeof(FluentIcons).Assembly;
         foreach (var cfg in IconFontConfigs.All)
         {
             if (fontClass is not null && !string.Equals(cfg.ClassName, fontClass, StringComparison.Ordinal))
                 continue;
 
-            var classType = Type.GetType($"IconFontTemplate.{cfg.ClassName}, IconFont.Maui.Template")
-                            ?? (cfg.ClassName switch
-                            {
-                                nameof(FluentIcons) => typeof(FluentIcons),
-                                "FluentIconsFilled" => typeof(FluentIconsFilled),
-                                _ => null
-                            });
-            if (classType is null) continue;
-            foreach (var nested in classType.GetNestedTypes(BindingFlags.Public))
+            // Find all flat classes whose name starts with the configured class name
+            // e.g., "FluentIcons" matches "FluentIconsRegular", "FluentIconsFilled", etc.
+            var matchingTypes = asm.GetTypes()
+                .Where(t => t.IsAbstract && t.IsSealed // static class
+                    && t.Namespace == cfg.Namespace
+                    && t.Name.StartsWith(cfg.ClassName, StringComparison.Ordinal)
+                    && t.Name != cfg.ClassName) // exclude the helper class itself
+                .OrderBy(t => t.Name, StringComparer.Ordinal);
+
+            foreach (var type in matchingTypes)
             {
-                AddIcons(nested, cfg.FontAlias, $"{cfg.ClassName}.{nested.Name}");
+                AddIcons(type, cfg.FontAlias, type.Name);
             }
         }
     }

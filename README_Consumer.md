@@ -29,7 +29,7 @@ Recommended for maintainers of this template:
 ## ✨ Features
 - ⚙️ **One-line setup**: call `builder.Use{{FONT_CLASS}}()` (generated, e.g., `UseFluentIcons()`) in `MauiProgram`
 - ➕ **Multiple fonts**: use `builder.UseIconFonts()` to register all, or per-font helpers like `Use{{FONT_CLASS}}Filled()`
-- 🔤 **Strongly-typed glyphs** via `{{FONT_CLASS}}.Regular.*` (and other styles if present)
+- 🔤 **Strongly-typed glyphs** via `{{FONT_CLASS}}Regular.*`, `{{FONT_CLASS}}Filled.*` (and other styles if present)
 - 🧰 **Helper APIs**: `{{FONT_CLASS}}.Create()` for `FontImageSource`
 - 📱 **Supported targets**: Android, iOS, Mac Catalyst, Windows
 
@@ -59,7 +59,7 @@ var builder = MauiApp.CreateBuilder()
 ```xaml
 xmlns:icons="clr-namespace:{{FONT_NAMESPACE}};assembly={{PACKAGE_ID}}"
 
-<FontImageSource Glyph="{x:Static icons:{{FONT_CLASS}}.Regular.Add24}"
+<FontImageSource Glyph="{x:Static icons:{{FONT_CLASS}}Regular.Add24}"
                  FontFamily="{x:Static icons:{{FONT_CLASS}}.FontFamily}"
                  Color="#2563EB"
                  Size="32" />
@@ -70,16 +70,16 @@ xmlns:icons="clr-namespace:{{FONT_NAMESPACE}};assembly={{PACKAGE_ID}}"
 using {{FONT_NAMESPACE}};
 
 // Create a FontImageSource for any glyph
-var source = {{FONT_CLASS}}.Create({{FONT_CLASS}}.Regular.Add24, Colors.Orange, 32);
+var source = {{FONT_CLASS}}.Create({{FONT_CLASS}}Regular.Add24, Colors.Orange, 32);
 ```
 
 > **Tip:** Glyph names follow the upstream font. If the font adds/changes glyphs, updating the TTF and rebuilding regenerates this API.
 
 ## 📋 Styles & glyphs
-The default generator emits one class per style (e.g., `Regular`, `Filled`). Example members:
+The generator emits one top-level class per style, with the style name appended to the configured class name (e.g., `{{FONT_CLASS}}Regular`, `{{FONT_CLASS}}Filled`). This flat structure allows direct use in XAML via `{x:Static}`. Example members:
 
-- `{{FONT_CLASS}}.Regular.Add24`
-- `{{FONT_CLASS}}.Filled.Home24`
+- `{{FONT_CLASS}}Regular.Add24`
+- `{{FONT_CLASS}}Filled.Home24`
 
 ## 🧩 Platforms
 | Platform | Minimum |

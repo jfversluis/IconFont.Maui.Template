@@ -18,11 +18,11 @@ IconFont.Maui.Template makes it painless to consume the [Fluent UI System Icons]
    ```bash
    dotnet add package IconFont.Maui.Template
    ```
-2. **Use the `FluentIcons` alias** in XAML:
+2. **Use the `FluentIconsRegular` class** in XAML:
    ```xaml
    xmlns:icons="clr-namespace:IconFontTemplate;assembly=IconFont.Maui.Template"
    ...
-   <FontImageSource Glyph="{x:Static icons:FluentIcons.Regular.Add24}"
+   <FontImageSource Glyph="{x:Static icons:FluentIconsRegular.Add24}"
                     FontFamily="{x:Static icons:FluentIcons.FontFamily}"
                     Color="#2563EB"
                     Size="48" />
@@ -31,14 +31,14 @@ IconFont.Maui.Template makes it painless to consume the [Fluent UI System Icons]
    ```csharp
    using IconFontTemplate;
 
-   var imageSource = FluentIcons.Create(FluentIcons.Regular.Calendar24, Colors.Orange, 32);
+   var imageSource = FluentIcons.Create(FluentIconsRegular.Calendar24, Colors.Orange, 32);
    ```
 
 The font is registered automatically via `buildTransitive/IconFont.Maui.Template.targets`, so no changes to your app's `.csproj` are required. For project references or explicit registration, call `builder.UseIconFont()`.
 
 ### Customize glyph coverage
 
-Out of the box, every glyph encoded in the Fluent TTF’s Private Use Area is exposed via `FluentIcons.<Style>.GlyphName`. If you need to filter or rename generated output, adjust `FluentGlyphGenerator` to apply your own grouping rules (for example, to emit only a subset or inject friendly descriptions).
+Out of the box, every glyph encoded in the Fluent TTF’s Private Use Area is exposed via `FluentIcons{Style}.GlyphName` (e.g. `FluentIconsRegular.Add24`. If you need to filter or rename generated output, adjust `FluentGlyphGenerator` to apply your own grouping rules (for example, to emit only a subset or inject friendly descriptions).
 
 > Tip: When Fluent UI ships new icons, update `FluentSystemIcons-Regular.ttf` (or your configured font), drop it into `Resources/Fonts`, and rebuild—the generator will pick up the new glyphs automatically with no extra metadata files.
 

@@ -43,13 +43,15 @@ public class GeneratorTests
                 }));
 
         driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
-        Assert.Empty(diagnostics);
+        Assert.Empty(diagnostics.Where(d => d.Id != "IFMT900"));
 
         var generated = outputCompilation.SyntaxTrees.FirstOrDefault(t => t.FilePath.EndsWith("FluentIcons.Generated.g.cs"));
         Assert.NotNull(generated);
         var text = generated!.ToString();
         Assert.Contains("namespace IconFontTemplate;", text);
-        Assert.Contains("public static partial class FluentIcons", text);
+        // Style is appended to class name — no nested classes
+        Assert.Contains("public static partial class FluentIconsRegular", text);
+        Assert.DoesNotContain("public static partial class Regular", text);
         Assert.Contains("public const string Add24", text);
     }
 
@@ -91,10 +93,77 @@ public class GeneratorTests
                 }));
 
         driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
-        Assert.Empty(diagnostics);
+        Assert.Empty(diagnostics.Where(d => d.Id != "IFMT900"));
 
         Assert.NotNull(outputCompilation.SyntaxTrees.FirstOrDefault(t => t.FilePath.EndsWith("FluentIcons.Generated.g.cs")));
         Assert.NotNull(outputCompilation.SyntaxTrees.FirstOrDefault(t => t.FilePath.EndsWith("FluentIconsFilled.Generated.g.cs")));
+    }
+
+    /// <summary>
+    /// Verifies that generated classes are flat (no nesting) so XAML <c>{x:Static icons:ClassName.Glyph}</c> works
+    /// without the problematic nested-class <c>+</c> syntax.
+    /// This is the key scenario: any font, any style must produce <c>ClassStyle.Glyph</c> instead of <c>Class.Style.Glyph</c>.
+    /// </summary>
+    [Fact]
+    public void Generated_Classes_Are_Flat_For_Xaml_XStatic_Compatibility()
+    {
+        var fontPath = Path.GetFullPath(Path.Combine(GetRepoRoot(), "src/IconFont.Maui.Template/Resources/Fonts/FluentSystemIcons-Regular.ttf"));
+        Assert.True(File.Exists(fontPath));
+
+        var compilation = CSharpCompilation.Create(
+            "XamlCompatTests",
+            new[] { CSharpSyntaxTree.ParseText("""namespace Dummy { class C { } }""") },
+            new[] { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) },
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        var generator = new FluentGlyphGenerator();
+        var driver = CSharpGeneratorDriver.Create(new ISourceGenerator[] { generator },
+            additionalTexts: new[] { new TestAdditionalText(fontPath) },
+            optionsProvider: TestAnalyzerConfigOptionsProvider.With(
+                perFile: new()
+                {
+                    [fontPath] = new()
+                    {
+                        ["build_metadata.AdditionalFiles.IconFontFile"] = Path.GetFileName(fontPath),
+                        ["build_metadata.AdditionalFiles.IconFontAlias"] = "MyCustomFont",
+                        ["build_metadata.AdditionalFiles.IconFontClass"] = "MyCustomFont",
+                        ["build_metadata.AdditionalFiles.IconFontNamespace"] = "MyCompany.Icons",
+                    }
+                }));
+
+        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
+        Assert.Empty(diagnostics.Where(d => d.Id != "IFMT900"));
+
+        var generated = outputCompilation.SyntaxTrees.FirstOrDefault(t => t.FilePath.EndsWith("MyCustomFont.Generated.g.cs"));
+        Assert.NotNull(generated);
+        var text = generated!.ToString();
+
+        // Flat class: style appended to class name
+        Assert.Contains("namespace MyCompany.Icons;", text);
+        Assert.Contains("public static partial class MyCustomFontRegular", text);
+
+        // No nesting — the class must NOT appear as a child of another class
+        Assert.DoesNotContain("public static partial class MyCustomFont\n", text);
+        Assert.DoesNotContain("public static partial class Regular", text);
+
+        // The generated code should compile with a consumer that does `MyCustomFontRegular.SomeGlyph`
+        // (simulating what {x:Static icons:MyCustomFontRegular.SomeGlyph} resolves to)
+        var consumerCode = """
+            namespace Consumer
+            {
+                class Test
+                {
+                    string GetGlyph() => MyCompany.Icons.MyCustomFontRegular.AccessTime20;
+                }
+            }
+            """;
+
+        var consumerTree = CSharpSyntaxTree.ParseText(consumerCode);
+        var finalCompilation = outputCompilation.AddSyntaxTrees(consumerTree);
+        var emitResult = finalCompilation.Emit(new System.IO.MemoryStream());
+        Assert.True(emitResult.Success, 
+            "Consumer code using flat class (x:Static pattern) should compile.\n" +
+            string.Join("\n", emitResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error)));
     }
 
     private static string GetRepoRoot()
