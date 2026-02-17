@@ -56,7 +56,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="IconFont.Maui.SourceGenerator" Version="1.1.0"
+		<PackageReference Include="IconFont.Maui.SourceGenerator" Version="1.2.0"
 			OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
 	</ItemGroup>
 
