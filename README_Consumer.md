@@ -20,7 +20,7 @@ Recommended for maintainers of this template:
     <None Include="..\\..\\README.md" Pack="true" PackagePath="" />
 -->
 
-![nuget](https://img.shields.io/nuget/v/{{PACKAGE_ID}}.svg?label=NuGet)
+[![NuGet](https://img.shields.io/nuget/v/{{PACKAGE_ID}}.svg?label=NuGet)](https://www.nuget.org/packages/{{PACKAGE_ID}})
 
 # {{PACKAGE_ID}}
 
@@ -36,14 +36,6 @@ Recommended for maintainers of this template:
 ## 📦 Install
 ```bash
 dotnet add package {{PACKAGE_ID}}
-```
-
-Add the registration in `MauiProgram`:
-
-```csharp
-var builder = MauiApp.CreateBuilder()
-    .UseMauiApp<App>()
-    .Use{{FONT_CLASS}}(); // generated helper (e.g., UseFluentIcons())
 ```
 
 ## 🚀 Getting Started
