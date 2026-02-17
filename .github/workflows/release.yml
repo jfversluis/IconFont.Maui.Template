@@ -24,11 +24,7 @@ jobs:
           dotnet-version: '8.0.x'
       - name: Restore
         run: dotnet restore IconFont.Maui.Template.sln
-      - name: Pack Source Generator
-        run: |
-          VERSION=${{ inputs.version != '' && inputs.version || github.ref_name }}
-          dotnet pack src/IconFont.Maui.Template.SourceGenerator/IconFont.Maui.Template.SourceGenerator.csproj -c Release -p:Version=$VERSION -o artifacts
-      - name: Pack Template Library
+      - name: Pack
         run: |
           VERSION=${{ inputs.version != '' && inputs.version || github.ref_name }}
           dotnet pack src/IconFont.Maui.Template/IconFont.Maui.Template.csproj -c Release -p:Version=$VERSION -o artifacts

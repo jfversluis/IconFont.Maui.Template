@@ -18,11 +18,7 @@ jobs:
         run: dotnet workload install maui
       - name: Restore
         run: dotnet restore IconFont.Maui.Template.sln
-      - name: Build source generator
-        run: dotnet build src/IconFont.Maui.Template.SourceGenerator/IconFont.Maui.Template.SourceGenerator.csproj -v minimal
       - name: Build library iOS
         run: dotnet build src/IconFont.Maui.Template/IconFont.Maui.Template.csproj -f net10.0-ios -r iossimulator-arm64 -v minimal
-      - name: Test Source Generator
-        run: dotnet test tests/IconFont.Maui.Template.SourceGenerator.Tests/IconFont.Maui.Template.SourceGenerator.Tests.csproj -v minimal
       - name: Test Integration
         run: dotnet test tests/IconFont.Maui.Template.IntegrationTests/IconFont.Maui.Template.IntegrationTests.csproj -v minimal

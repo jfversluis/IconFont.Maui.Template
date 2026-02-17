@@ -61,19 +61,13 @@ Out of the box, every glyph encoded in the Fluent TTF’s Private Use Area is ex
    - `IconFontFile` → `MyFont.ttf`
    - `IconFontAlias` → `MyFont`
    - *(optional)* `IconFontClass`, `IconFontNamespace`
-4. In `IconFont.Maui.Template.csproj`, replace the `ProjectReference` with:
-   ```xml
-   <PackageReference Include="IconFont.Maui.SourceGenerator" Version="1.0.0"
-       OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
-   ```
-   and remove the `<Import>` of the generator targets (it ships automatically with the package).
-5. Build: `dotnet build IconFont.Maui.Template.sln`
-6. Sample app:
+4. Build: `dotnet build IconFont.Maui.Template.sln`
+5. Sample app:
    ```csharp
    builder.UseMauiApp<App>()
           .UseIconFont();
    ```
-7. XAML usage adapts automatically if you keep defaults; otherwise update `xmlns` and class tokens.
+6. XAML usage adapts automatically if you keep defaults; otherwise update `xmlns` and class tokens.
 
 ### Multi-font example
 ```xml
@@ -138,25 +132,22 @@ IconFont/
 │       ├── ci.yml
 │       └── release.yml
 ├── src/
-│   ├── IconFont.Maui.Template/              ← Template font library (clone & customize)
-│   │   ├── IconFont.props                   ← Font configuration (file, alias, class, namespace)
-│   │   ├── IconFont.Maui.Template.csproj
-│   │   ├── FluentIcons.cs                   ← Helper class (Create, FontFamily)
-│   │   ├── FluentIconsFilled.cs
-│   │   ├── FluentIconsInitializer.cs
-│   │   ├── Hosting/IconFontBuilderExtensions.cs
-│   │   ├── Resources/Fonts/*.ttf
-│   │   └── buildTransitive/IconFont.Maui.Template.targets
-│   └── IconFont.Maui.Template.SourceGenerator/  ← Shared generator (published as NuGet)
-│       ├── IconFont.Maui.Template.SourceGenerator.csproj
-│       ├── FluentGlyphGenerator.cs
-│       └── buildTransitive/IconFont.Maui.SourceGenerator.targets
+│   └── IconFont.Maui.Template/              ← Template font library (clone & customize)
+│       ├── IconFont.props                   ← Font configuration (file, alias, class, namespace)
+│       ├── IconFont.Maui.Template.csproj
+│       ├── FluentIcons.cs                   ← Helper class (Create, FontFamily)
+│       ├── FluentIconsFilled.cs
+│       ├── FluentIconsInitializer.cs
+│       ├── Hosting/IconFontBuilderExtensions.cs
+│       ├── Resources/Fonts/*.ttf
+│       └── buildTransitive/IconFont.Maui.Template.targets
 ├── tests/
-│   ├── IconFont.Maui.Template.SourceGenerator.Tests/
 │   └── IconFont.Maui.Template.IntegrationTests/
 └── samples/
     └── IconFont.Maui.Template.Sample/
 ```
+
+The source generator lives in its own repo: [IconFont.Maui.SourceGenerator](https://github.com/jfversluis/IconFont.Maui.SourceGenerator).
 
 ## 🧪 Building & Testing
 

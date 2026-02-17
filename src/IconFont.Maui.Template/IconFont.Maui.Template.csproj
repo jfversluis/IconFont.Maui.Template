@@ -57,27 +57,15 @@
 
 	<ItemGroup>
 		<!--
-		  For local development inside this template repo, the source generator is
-		  referenced as a ProjectReference so changes are picked up immediately.
+		  The source generator is published as its own NuGet: IconFont.Maui.SourceGenerator.
+		  It includes the Roslyn analyzer and MSBuild targets that handle all
+		  config/code generation automatically.
 
-		  When you clone this template for your own font package, replace this with:
-
-		    <PackageReference Include="IconFont.Maui.SourceGenerator" Version="1.0.0"
-		        OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
-
-		  The generator NuGet package includes the Roslyn analyzer and MSBuild targets
-		  that handle all config/code generation automatically.
+		  TODO: Once IconFont.Maui.SourceGenerator is published to NuGet, update
+		  the Version below to match the published version.
 		-->
-		<ProjectReference Include="..\IconFont.Maui.Template.SourceGenerator\IconFont.Maui.Template.SourceGenerator.csproj"
-			OutputItemType="Analyzer"
-			ReferenceOutputAssembly="false" />
+		<PackageReference Include="IconFont.Maui.SourceGenerator" Version="1.0.0-*"
+			OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
 	</ItemGroup>
-
-	<!--
-	  Import the generator's MSBuild targets for local development.
-	  When using PackageReference to IconFont.Maui.SourceGenerator, this import
-	  happens automatically via the NuGet buildTransitive mechanism.
-	-->
-	<Import Project="..\IconFont.Maui.Template.SourceGenerator\buildTransitive\IconFont.Maui.SourceGenerator.targets" />
 
 </Project>
