@@ -2,7 +2,7 @@
 
 IconFont.Maui.Template makes it painless to consume the [Fluent UI System Icons](https://github.com/microsoft/fluentui-system-icons) font inside .NET MAUI applications. It bundles the official font file, registers it at build time using a `buildTransitive` target, and exposes helper APIs plus a sample app that demonstrates how to render glyphs in XAML and C#.
 
-ℹ️ **Customize quickly:** drop your TTF into `src/IconFont.Maui.Template/Resources/Fonts/` and edit `src/IconFont.Maui.Template/IconFont.props` (file, alias, class, namespace). Everything else updates automatically.
+ℹ️ **Customize quickly:** drop your TTF or OTF font into `src/IconFont.Maui.Template/Resources/Fonts/` and edit `src/IconFont.Maui.Template/IconFont.props` (file, alias, class, namespace). Everything else updates automatically.
 
 ## 📦 Architecture
 
@@ -10,7 +10,7 @@ This repo contains **two packages**:
 
 | Package | Purpose |
 |---------|---------|
-| **`IconFont.Maui.SourceGenerator`** | Shared Roslyn source generator + MSBuild targets. Parses any TTF and emits strongly-typed glyph constants. Published once, referenced by all font packages. |
+| **`IconFont.Maui.SourceGenerator`** | Shared Roslyn source generator + MSBuild targets. Parses any TTF or OTF font and emits strongly-typed glyph constants. Published once, referenced by all font packages. |
 | **`IconFont.Maui.Template`** | Template library that bundles a specific font (Fluent UI icons by default). Clone this, drop in your font, and publish your own package. |
 
 When you clone this template for your own font, replace the `ProjectReference` to the source generator with a `PackageReference` to `IconFont.Maui.SourceGenerator` — see instructions in the `.csproj`.
@@ -19,7 +19,7 @@ When you clone this template for your own font, replace the `ProjectReference` t
 
 - 📦 **Drop-in NuGet packaging** – The `IconFont.Maui.Template` library automatically registers the configured font alias for every target (Android, iOS, Mac Catalyst, Windows).
 - 🧱 **Helper APIs** – Use the `FluentIcons` helper class to reference glyphs and create `FontImageSource` instances in code.
-- ⚙️ **Shared source generator** – `IconFont.Maui.SourceGenerator` parses any TTF and emits strongly-typed glyph constants. Published as a separate NuGet so all font packages share the same generator.
+- ⚙️ **Shared source generator** – `IconFont.Maui.SourceGenerator` parses any TTF or OTF font and emits strongly-typed glyph constants. Published as a separate NuGet so all font packages share the same generator.
 - 🧪 **Sample MAUI app** – `IconFont.Maui.Template.Sample` shows how to consume the library and render icons in XAML without manual font setup.
 - 📄 **MIT licensed** – The library is MIT licensed and redistributes the Fluent UI System Icons font under its MIT license.
 
@@ -51,12 +51,12 @@ The font is registered automatically via `buildTransitive/IconFont.Maui.Template
 
 Out of the box, every glyph encoded in the Fluent TTF’s Private Use Area is exposed via `FluentIcons{Style}.GlyphName` (e.g. `FluentIconsRegular.Add24`. If you need to filter or rename generated output, adjust `FluentGlyphGenerator` to apply your own grouping rules (for example, to emit only a subset or inject friendly descriptions).
 
-> Tip: When Fluent UI ships new icons, update `FluentSystemIcons-Regular.ttf` (or your configured font), drop it into `Resources/Fonts`, and rebuild—the generator will pick up the new glyphs automatically with no extra metadata files.
+> Tip: When your upstream font ships new icons, update the font file (TTF or OTF), drop it into `Resources/Fonts`, and rebuild—the generator will pick up the new glyphs automatically with no extra metadata files.
 
 ## 🛠 Customize for your font
 
 1. Clone/fork this template repo.
-2. Drop your font into `src/IconFont.Maui.Template/Resources/Fonts/` (e.g., `MyFont.ttf`).
+2. Drop your font into `src/IconFont.Maui.Template/Resources/Fonts/` (e.g., `MyFont.ttf` or `MyFont.otf`).
 3. Edit `src/IconFont.Maui.Template/IconFont.props`:
    - `IconFontFile` → `MyFont.ttf`
    - `IconFontAlias` → `MyFont`
@@ -140,7 +140,7 @@ IconFont/
 │       ├── FluentIconsFilled.cs
 │       ├── FluentIconsInitializer.cs
 │       ├── Hosting/IconFontBuilderExtensions.cs
-│       ├── Resources/Fonts/*.ttf
+│       ├── Resources/Fonts/*.ttf or *.otf
 │       └── buildTransitive/IconFont.Maui.Template.targets
 ├── tests/
 │   └── IconFont.Maui.Template.IntegrationTests/

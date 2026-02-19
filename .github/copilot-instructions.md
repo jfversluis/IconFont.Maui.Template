@@ -6,7 +6,7 @@ This is a **template repository** for creating .NET MAUI icon font NuGet package
 
 When a user asks to rename/customize this template for their icon font (e.g., "BootstrapIcons", "MaterialIcons", etc.), perform **all** of the following steps. The user will provide:
 - **Font name**: e.g., `BootstrapIcons` (used for class names, aliases, NuGet package ID)
-- **TTF file(s)**: the icon font file(s) to use
+- **TTF or OTF file(s)**: the icon font file(s) to use
 
 ### Placeholders to replace
 
@@ -15,7 +15,7 @@ When a user asks to rename/customize this template for their icon font (e.g., "B
 | `IconFont.Maui.Template` | `IconFont.Maui.BootstrapIcons` | Solution file, csproj filenames, project paths, NuGet PackageId, namespaces in CI/CD workflows |
 | `IconFontTemplate` (namespace) | `IconFont.Maui.BootstrapIcons` | All `.cs`, `.xaml`, `.csproj`, `IconFont.props` namespace references |
 | `FluentIcons` / `FluentIconsFilled` | `BootstrapIcons` | Class names, FontAlias, FontClass in `IconFont.props`, helper `.cs` files, sample app references |
-| `FluentSystemIcons-Regular.ttf` / `FluentSystemIcons-Filled.ttf` | `bootstrap-icons.ttf` | `IconFont.props`, `Resources/Fonts/` directory, `buildTransitive/` targets |
+| `FluentSystemIcons-Regular.ttf` / `FluentSystemIcons-Filled.ttf` | `bootstrap-icons.ttf` | `IconFont.props`, `Resources/Fonts/` directory, `buildTransitive/` targets. Font files can be TTF or OTF. |
 
 ### Files that need content changes (source files only, ignore bin/obj)
 
@@ -48,7 +48,7 @@ When a user asks to rename/customize this template for their icon font (e.g., "B
 ### Font files
 
 - Remove the sample TTFs from `Resources/Fonts/` (`FluentSystemIcons-Regular.ttf`, `FluentSystemIcons-Filled.ttf`)
-- Add the user's TTF file(s) to `Resources/Fonts/`
+- Add the user's font file(s) to `Resources/Fonts/` (TTF or OTF — the source generator supports both)
 - If the font has only one style, remove the `FluentIconsFilled.cs` helper and the second `IconFontDefinition` from `IconFont.props`
 
 ### After renaming
@@ -60,7 +60,7 @@ When a user asks to rename/customize this template for their icon font (e.g., "B
 
 ## Architecture
 
-- **`IconFont.Maui.SourceGenerator`** (NuGet reference, build-time only) — Roslyn source generator that parses TTF files and emits strongly-typed glyph constants as `const string` fields
+- **`IconFont.Maui.SourceGenerator`** (NuGet reference, build-time only) — Roslyn source generator that parses TTF and OTF font files and emits strongly-typed glyph constants as `const string` fields
 - **`IconFont.props`** — Central configuration defining which fonts to process, with what class names and aliases
 - **Helper classes** (`FluentIcons.cs`, etc.) — Hand-written `partial` classes with `[Preserve]` and convenience `Create()` methods. The source generator emits the other `partial` half with all glyph constants and `FontFamily`
 - **`buildTransitive/`** — MSBuild targets packed into the NuGet so consumers get automatic `MauiFont` registration

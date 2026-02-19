@@ -65,7 +65,7 @@ using {{FONT_NAMESPACE}};
 var source = {{FONT_CLASS}}.Create({{FONT_CLASS}}Regular.Add24, Colors.Orange, 32);
 ```
 
-> **Tip:** Glyph names follow the upstream font. If the font adds/changes glyphs, updating the TTF and rebuilding regenerates this API.
+> **Tip:** Glyph names follow the upstream font. If the font adds/changes glyphs, updating the font file (TTF or OTF) and rebuilding regenerates this API.
 
 ## 📋 Styles & glyphs
 The generator emits one top-level class per style, with the style name appended to the configured class name (e.g., `{{FONT_CLASS}}Regular`, `{{FONT_CLASS}}Filled`). This flat structure allows direct use in XAML via `{x:Static}`. Example members:

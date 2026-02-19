@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using IconFontTemplate;
 
 namespace IconFontTemplate.Sample.ViewModels;
@@ -8,15 +7,15 @@ namespace IconFontTemplate.Sample.ViewModels;
 public class IconGlyph
 {
     public required string Glyph { get; init; }
-    // e.g., FluentIconsRegular.Add24
     public required string Identifier { get; init; }
-    // e.g., icons:FluentIconsRegular.Add24
     public required string XamlIdentifier { get; init; }
     public required string FontFamily { get; init; }
 }
 
 public class IconsViewModel
 {
+    private static readonly HashSet<string> SkipFields = new() { "FontFamily" };
+
     public ObservableCollection<IconGlyph> Icons { get; } = new();
 
     public IconsViewModel(string? fontClass = null)
@@ -27,13 +26,15 @@ public class IconsViewModel
             if (fontClass is not null && !string.Equals(cfg.ClassName, fontClass, StringComparison.Ordinal))
                 continue;
 
-            // Find all flat classes whose name starts with the configured class name
-            // e.g., "FluentIcons" matches "FluentIconsRegular", "FluentIconsFilled", etc.
+            // Find all static classes whose name starts with the configured class name.
+            // This handles both naming patterns:
+            //   - "FluentIcons" matches "FluentIconsRegular", "FluentIconsFilled", etc.
+            //   - "FontAwesomeSolid" matches "FontAwesomeSolid" (exact match when style is in the name)
+            // Helper classes (e.g., "FluentIcons") are included but have no glyph fields, so they contribute nothing.
             var matchingTypes = asm.GetTypes()
-                .Where(t => t.IsAbstract && t.IsSealed // static class
+                .Where(t => t.IsAbstract && t.IsSealed
                     && t.Namespace == cfg.Namespace
-                    && t.Name.StartsWith(cfg.ClassName, StringComparison.Ordinal)
-                    && t.Name != cfg.ClassName) // exclude the helper class itself
+                    && t.Name.StartsWith(cfg.ClassName, StringComparison.Ordinal))
                 .OrderBy(t => t.Name, StringComparer.Ordinal);
 
             foreach (var type in matchingTypes)
@@ -49,6 +50,7 @@ public class IconsViewModel
         foreach (var field in fields)
         {
             if (field.FieldType != typeof(string)) continue;
+            if (SkipFields.Contains(field.Name)) continue;
             var glyph = field.GetValue(null) as string;
             if (string.IsNullOrEmpty(glyph)) continue;
             Icons.Add(new IconGlyph
