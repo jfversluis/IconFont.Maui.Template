@@ -1,16 +1,16 @@
 <Project>
   <PropertyGroup>
     <IconFontFile>FluentSystemIcons-Regular.ttf</IconFontFile>
-    <IconFontAlias>FluentIcons</IconFontAlias>
-    <IconFontClass>FluentIcons</IconFontClass>
+    <IconFontAlias>FluentIconsRegular</IconFontAlias>
+    <IconFontClass>FluentIconsRegular</IconFontClass>
     <IconFontNamespace>IconFontTemplate</IconFontNamespace>
   </PropertyGroup>
 
   <!-- Multi-font support: define one or more IconFontDefinition items. -->
   <ItemGroup>
     <IconFontDefinition Include="Resources/Fonts/FluentSystemIcons-Regular.ttf">
-      <FontAlias>FluentIcons</FontAlias>
-      <FontClass>FluentIcons</FontClass>
+      <FontAlias>FluentIconsRegular</FontAlias>
+      <FontClass>FluentIconsRegular</FontClass>
       <FontNamespace>IconFontTemplate</FontNamespace>
     </IconFontDefinition>
     <IconFontDefinition Include="Resources/Fonts/FluentSystemIcons-Filled.ttf">

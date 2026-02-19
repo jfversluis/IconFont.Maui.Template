@@ -7,6 +7,6 @@ public partial class RegularIconsPage : ContentPage
 	public RegularIconsPage()
 	{
 		InitializeComponent();
-		BindingContext = new IconsViewModel("FluentIcons");
+		BindingContext = new IconsViewModel("FluentIconsRegular");
 	}
 }

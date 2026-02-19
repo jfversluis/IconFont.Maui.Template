@@ -7,8 +7,6 @@ namespace IconFontTemplate;
 [Preserve(AllMembers = true)]
 public static partial class FluentIconsFilled
 {
-    static FluentIconsFilled() { }
-
     public static FontImageSource Create(string glyph, Color? color = null, double size = 24d)
     {
         return new FontImageSource

@@ -43,7 +43,7 @@ This template depends on the shared **`IconFont.Maui.SourceGenerator`** NuGet pa
    var imageSource = FluentIcons.Create(FluentIconsRegular.Calendar24, Colors.Orange, 32);
    ```
 
-The font is registered automatically via `buildTransitive/IconFont.Maui.Template.targets`, so no changes to your app's `.csproj` are required. For project references or explicit registration, call `builder.UseIconFont()`.
+The font is registered automatically via `buildTransitive/IconFont.Maui.Template.targets`, so no changes to your app's `.csproj` are required. For project references or explicit registration, call `builder.UseFluentIcons()`.
 
 ### Customize glyph coverage
 
@@ -63,7 +63,7 @@ Out of the box, every glyph encoded in the font's Private Use Area is exposed vi
 5. Sample app:
    ```csharp
    builder.UseMauiApp<App>()
-          .UseIconFont();
+          .UseFluentIcons();
    ```
 6. XAML usage adapts automatically if you keep defaults; otherwise update `xmlns` and class tokens.
 
@@ -84,8 +84,10 @@ Out of the box, every glyph encoded in the font's Private Use Area is exposed vi
 ```
 In `MauiProgram`:
 ```csharp
-builder.UseIconFonts(); // registers all fonts
-// or builder.UseMyIcons(); builder.UseMyIconsFilled();
+builder.UseMyIcons(); // registers all fonts defined in IconFont.props
+// or register individual styles:
+builder.UseMyIconsRegular();
+builder.UseMyIconsFilled();
 ```
 
 🔒 **Licensing checklist (for authors):**
