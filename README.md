@@ -6,14 +6,12 @@ IconFont.Maui.Template makes it painless to consume the [Fluent UI System Icons]
 
 ## 📦 Architecture
 
-This repo contains **two packages**:
+This template depends on the shared **`IconFont.Maui.SourceGenerator`** NuGet package — a Roslyn source generator that parses any TTF or OTF font and emits strongly-typed glyph constants. It is published separately and referenced by all font packages (including this template).
 
-| Package | Purpose |
-|---------|---------|
-| **`IconFont.Maui.SourceGenerator`** | Shared Roslyn source generator + MSBuild targets. Parses any TTF or OTF font and emits strongly-typed glyph constants. Published once, referenced by all font packages. |
-| **`IconFont.Maui.Template`** | Template library that bundles a specific font (Fluent UI icons by default). Clone this, drop in your font, and publish your own package. |
-
-When you clone this template for your own font, replace the `ProjectReference` to the source generator with a `PackageReference` to `IconFont.Maui.SourceGenerator` — see instructions in the `.csproj`.
+| Component | Purpose |
+|-----------|---------|
+| **`IconFont.Maui.SourceGenerator`** ([repo](https://github.com/jfversluis/IconFont.Maui.SourceGenerator)) | Shared source generator + MSBuild targets. Referenced as a NuGet `PackageReference`. |
+| **`IconFont.Maui.Template`** (this repo) | Template library that bundles a specific font (Fluent UI icons by default). Clone this, drop in your font, and publish your own package. |
 
 ## ✨ Features
 
@@ -49,7 +47,7 @@ The font is registered automatically via `buildTransitive/IconFont.Maui.Template
 
 ### Customize glyph coverage
 
-Out of the box, every glyph encoded in the Fluent TTF’s Private Use Area is exposed via `FluentIcons{Style}.GlyphName` (e.g. `FluentIconsRegular.Add24`. If you need to filter or rename generated output, adjust `FluentGlyphGenerator` to apply your own grouping rules (for example, to emit only a subset or inject friendly descriptions).
+Out of the box, every glyph encoded in the font's Private Use Area is exposed via `FluentIcons{Style}.GlyphName` (e.g. `FluentIconsRegular.Add24`). The glyph names and constants are generated automatically by the [IconFont.Maui.SourceGenerator](https://github.com/jfversluis/IconFont.Maui.SourceGenerator) — no manual glyph mapping is needed.
 
 > Tip: When your upstream font ships new icons, update the font file (TTF or OTF), drop it into `Resources/Fonts`, and rebuild—the generator will pick up the new glyphs automatically with no extra metadata files.
 
