@@ -36,11 +36,11 @@ public class BuildTests
         Assert.True(extensions.Count > 0, "IconFontExtensions.g.cs not found");
 
         var configText = configs.Select(File.ReadAllText).First(text => text.Contains("IconFontConfigs"));
-        Assert.Contains("FluentIcons", configText);
+        Assert.Contains("FluentIconsRegular", configText);
         Assert.Contains("FluentIconsFilled", configText);
 
-        var extText = extensions.Select(File.ReadAllText).First(text => text.Contains("UseIconFonts"));
-        Assert.Contains("UseFluentIcons", extText);
+        var extText = extensions.Select(File.ReadAllText).First(text => text.Contains("IconFontBuilderExtensions"));
+        Assert.Contains("UseFluentIconsRegular", extText);
         Assert.Contains("UseFluentIconsFilled", extText);
     }
 
